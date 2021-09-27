@@ -57,28 +57,33 @@ int main()
 	// Tell GLAD the viewport size of OpenGL in the window
 	glViewport(0, 0, 800, 800);
 
-	
 	Shader shaderProgram("default.vert", "default.frag");
 
-	// Generates Vertex Array Object and binds it
-	VAO VAO1;
-	VAO1.Bind();
-
-	// Generates Vertex Buffer Object and links it to vertices
-	VBO VBO1(vertices, sizeof(vertices));
-	// Generates Element Buffer Object and links it to indices
-	EBO EBO1(indices, sizeof(indices));
-
-	// Links VBO to VAO
-	VAO1.LinkVBO(VBO1, 0);
-	// Unbind all to prevent accidentally modifying them
-	VAO1.Unbind();
-	VBO1.Unbind();
-	EBO1.Unbind();
+	GLfloat value = -1.0f;
 
 	// Main while loop until window should close
 	while (!glfwWindowShouldClose(window))
 	{
+		// Generates Vertex Array Object and binds it
+		VAO VAO1;
+		VAO1.Bind();
+
+
+		vertices[0] = value;
+
+		// Generates Vertex Buffer Object and links it to vertices
+		VBO VBO1(vertices, sizeof(vertices));
+		// Generates Element Buffer Object and links it to indices
+		EBO EBO1(indices, sizeof(indices));
+
+		// Links VBO to VAO
+		VAO1.LinkVBO(VBO1, 0);
+		// Unbind all to prevent accidentally modifying them
+		VAO1.Unbind();
+		VBO1.Unbind();
+		EBO1.Unbind();
+
+
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Tell OpenGL the Shader Program we want to use
@@ -91,12 +96,15 @@ int main()
 		glfwSwapBuffers(window);
 		// Get and process events
 		glfwPollEvents();
+
+
+		value += 0.0001f;
 	}
 
 	// Clean up, delete objects created
-	VAO1.Delete();
-	VBO1.Delete();
-	EBO1.Delete();
+	//VAO1.Delete();
+	//VBO1.Delete();
+	//EBO1.Delete();
 	shaderProgram.Delete();
 
 	// End program
