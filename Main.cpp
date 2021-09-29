@@ -6,17 +6,14 @@
 #include"VAO.h"
 #include"VBO.h"
 #include"EBO.h"
+using namespace std;
 
-// Vertices coordinates
-GLfloat vertices[] =
-{
-	-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower Left
-	0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower Right
-	0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, // Top
-	-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner Left
-	0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner Right
-	0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // Inner Down
-};
+GLint SCREEN_WIDTH = 800;
+GLint SCREEN_HEIGHT = 800;
+
+const int vSize = ((SCREEN_WIDTH + 1) * (SCREEN_HEIGHT + 1) * 3);
+
+GLfloat* vertices[] = new GLfloat*[vSize];
 
 // Indices for vertices order
 GLuint indices[] =
@@ -28,6 +25,18 @@ GLuint indices[] =
 
 int main() 
 {
+
+	for (int i = -1; i <= 1.0f; i += 2.0f/SCREEN_HEIGHT)
+	{
+		for (int j = -1; j <= 1.0f; j += 2.0f/SCREEN_WIDTH)
+		{
+			
+			vertices[(i * SCREEN_HEIGHT + j) * 3] = i;
+			vertices[(i * SCREEN_HEIGHT + j) * 3 + 1] = j;
+			vertices[(i * SCREEN_HEIGHT + j) * 3 + 2] = 0;
+		}
+	}
+
 	// Initialize GLFW
 	glfwInit();
 
@@ -40,7 +49,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create a GLFW window, width SCREEN_WIDTH, height SCREEN_HEIGHT, named "OpenGLTest"
-	GLFWwindow* window = glfwCreateWindow(800, 800, "OpenGLTest", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGLTest", NULL, NULL);
 	// If window fails to be created
 	if (window == NULL)
 	{
@@ -59,7 +68,7 @@ int main()
 
 	Shader shaderProgram("default.vert", "default.frag");
 
-	GLfloat value = -1.0f;
+	//GLfloat value = -1.0f;
 
 	// Main while loop until window should close
 	while (!glfwWindowShouldClose(window))
@@ -69,7 +78,7 @@ int main()
 		VAO1.Bind();
 
 
-		vertices[0] = value;
+		//vertices[0] = value;
 
 		// Generates Vertex Buffer Object and links it to vertices
 		VBO VBO1(vertices, sizeof(vertices));
@@ -98,7 +107,7 @@ int main()
 		glfwPollEvents();
 
 
-		value += 0.0001f;
+		//value += 0.0001f;
 	}
 
 	// Clean up, delete objects created
