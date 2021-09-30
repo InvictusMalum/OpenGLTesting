@@ -6,36 +6,59 @@
 #include"VAO.h"
 #include"VBO.h"
 #include"EBO.h"
+
+#include <stdlib.h>
+#include <list>
+
 using namespace std;
 
-GLint SCREEN_WIDTH = 800;
-GLint SCREEN_HEIGHT = 800;
+const GLint SCREEN_WIDTH = 800;
+const GLint SCREEN_HEIGHT = 800;
+
+const GLint VERTS_WIDTH = 800;
+const GLint VERTS_HEIGHT = 800;
 
 const int vSize = ((SCREEN_WIDTH + 1) * (SCREEN_HEIGHT + 1) * 3);
 
-GLfloat* vertices[] = new GLfloat*[vSize];
+GLfloat vertices[vSize];
 
 // Indices for vertices order
-GLuint indices[] =
-{
-	0, 3, 5, // Lower left triangle
-	3, 2, 4, // Lower right triangle
-	5, 4, 1 // Upper triangle
-};
+GLuint indices[VERTS_HEIGHT * VERTS_WIDTH * 6];
 
 int main() 
 {
-
-	for (int i = -1; i <= 1.0f; i += 2.0f/SCREEN_HEIGHT)
+	for (int i = 0; i < VERTS_HEIGHT; i++)
 	{
-		for (int j = -1; j <= 1.0f; j += 2.0f/SCREEN_WIDTH)
+		for (int j = 0; j < VERTS_WIDTH; j++)
 		{
-			
-			vertices[(i * SCREEN_HEIGHT + j) * 3] = i;
-			vertices[(i * SCREEN_HEIGHT + j) * 3 + 1] = j;
-			vertices[(i * SCREEN_HEIGHT + j) * 3 + 2] = 0;
+			vertices[(i * VERTS_WIDTH + j) * 3] = (GLfloat)(j)/(VERTS_WIDTH-1)*2-1;
+			vertices[(i * VERTS_WIDTH + j) * 3 + 1] = -((GLfloat)(i) / (VERTS_HEIGHT-1)*2-1);
+			vertices[(i * VERTS_WIDTH + j) * 3 + 2] = 0;
 		}
 	}
+	srand(time(NULL));
+
+	int percentOn = 50;
+
+	int nextOpen = 0;
+	for (int i = 0; i < VERTS_HEIGHT-1; i++)
+	{
+		for (int j = 0; j < VERTS_WIDTH-1; j++)
+		{
+			if (rand() % 100 + 1 <= percentOn)
+			{
+				indices[nextOpen] = i * VERTS_WIDTH + j;
+				indices[nextOpen + 1] = i * VERTS_WIDTH + j + VERTS_WIDTH + 1;
+				indices[nextOpen + 2] = i * VERTS_WIDTH + j + VERTS_WIDTH;
+				
+				indices[nextOpen+3] = i * VERTS_WIDTH + j;
+				indices[nextOpen+4] = i * VERTS_WIDTH + j + 1;
+				indices[nextOpen+5] = i * VERTS_WIDTH + j + VERTS_WIDTH + 1;
+				nextOpen += 6;
+			}
+		}
+	}
+	std::cout << "Made " << nextOpen << " verts" << std::endl;
 
 	// Initialize GLFW
 	glfwInit();
@@ -64,11 +87,9 @@ int main()
 	gladLoadGL();
 
 	// Tell GLAD the viewport size of OpenGL in the window
-	glViewport(0, 0, 800, 800);
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	Shader shaderProgram("default.vert", "default.frag");
-
-	//GLfloat value = -1.0f;
 
 	// Main while loop until window should close
 	while (!glfwWindowShouldClose(window))
@@ -76,9 +97,6 @@ int main()
 		// Generates Vertex Array Object and binds it
 		VAO VAO1;
 		VAO1.Bind();
-
-
-		//vertices[0] = value;
 
 		// Generates Vertex Buffer Object and links it to vertices
 		VBO VBO1(vertices, sizeof(vertices));
@@ -93,21 +111,23 @@ int main()
 		EBO1.Unbind();
 
 
-		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+		//glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Tell OpenGL the Shader Program we want to use
 		shaderProgram.Activate();
 		// Bind VAO so OpenGL knows how to use it
 		VAO1.Bind();
 		// Draw the triangle using the GL_TRIANGLES primitive
-		glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, nextOpen, GL_UNSIGNED_INT, 0);
 		// Swap back and front buffers
 		glfwSwapBuffers(window);
 		// Get and process events
 		glfwPollEvents();
 
-
-		//value += 0.0001f;
+		VAO1.Delete();
+		VBO1.Delete();
+		EBO1.Delete();
 	}
 
 	// Clean up, delete objects created
