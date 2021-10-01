@@ -12,21 +12,59 @@
 
 using namespace std;
 
-const GLint SCREEN_WIDTH = 800;
-const GLint SCREEN_HEIGHT = 800;
+const GLint SCREEN_WIDTH = 1080;
+const GLint SCREEN_HEIGHT = 720;
 
-const GLint VERTS_WIDTH = 800;
-const GLint VERTS_HEIGHT = 800;
+const GLint SQUARES_WIDTH = 108;
+const GLint SQUARES_HEIGHT = 72;
 
-const int vSize = ((SCREEN_WIDTH + 1) * (SCREEN_HEIGHT + 1) * 3);
+const GLint NODES_WIDTH = SQUARES_WIDTH+1;
+const GLint NODES_HEIGHT = SQUARES_HEIGHT+1;
+
+const GLint VERTS_WIDTH = 2 * SQUARES_WIDTH + 1;
+const GLint VERTS_HEIGHT = 2 * SQUARES_HEIGHT + 1;
+
+const int vSize = (VERTS_WIDTH * VERTS_HEIGHT * 3);
 
 GLfloat vertices[vSize];
+bool nodes[NODES_HEIGHT][NODES_WIDTH];
+GLuint nodeIndices[SQUARES_HEIGHT * SQUARES_WIDTH * 6];
+GLuint indices[VERTS_HEIGHT * VERTS_WIDTH * 12];
 
-// Indices for vertices order
-GLuint indices[VERTS_HEIGHT * VERTS_WIDTH * 6];
+int x = VERTS_WIDTH;
+
+int squareCombs[16][5][3] = {
+	{{0}, { 0,0,0 }}, // 0
+	{{1}, {0,1,x}}, // 1
+	{{1}, {1,2,x + 2}}, // 2
+	{{2}, {0,x + 2,x},{0,2,x + 2}}, // 3
+	{{1}, {x,2 * x + 1,2 * x}}, // 4
+	{{2}, {0,1,2 * x},{1,2 * x + 1,2 * x}}, // 5
+	{{4}, {1,2,x},{2,2 * x,x},{2,x + 2,2 * x},{x + 2,2 * x + 1,2 * x}}, // 6
+	{{3}, {0,2,x + 2},{0,x + 2,2 * x + 1},{0,2 * x + 1,2 * x}}, // 7
+	{{1}, {x+2,2*x+2,2*x+1}}, // 8
+	{{4}, {0,1,x+2},{0,x+2,2*x+2},{0,2*x+2,2*x+1},{0,2*x+1,x}}, // 9
+	{{2}, {1,2,2*x+1},{2,2*x+1,2*x+2}}, // 10
+	{{3}, {0,2,x},{2,2*x+1,x},{2,2*x+2,2*x+1}}, // 11
+	{{2}, {x,x+2,2*x+2},{x,2*x+2,2*x}}, // 12
+	{{3}, {0,1,2*x},{1,x+2,2*x},{x+2,2*x+2,2*x}}, // 13
+	{{3}, {1,2,2*x+2},{1,2*x+2,x},{x,2*x+2,2*x}}, // 14
+	{{2}, {0,2,2*x+2},{0,2*x+2,2*x}}, // 15
+};
 
 int main() 
 {
+
+	for (int i = 0; i < 16; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			std::cout << " " << squareCombs[i][j][0] << " " << squareCombs[i][j][1] << " " << squareCombs[i][j][2] << std::endl;
+		};
+	};
+
+
+	// Make all vertices
 	for (int i = 0; i < VERTS_HEIGHT; i++)
 	{
 		for (int j = 0; j < VERTS_WIDTH; j++)
@@ -36,29 +74,83 @@ int main()
 			vertices[(i * VERTS_WIDTH + j) * 3 + 2] = 0;
 		}
 	}
+
+	// Generate Node Map
 	srand(time(NULL));
-
 	int percentOn = 50;
-
-	int nextOpen = 0;
-	for (int i = 0; i < VERTS_HEIGHT-1; i++)
+	int outLayer = 0;
+	for (int i = 0; i < NODES_HEIGHT; i++)
 	{
-		for (int j = 0; j < VERTS_WIDTH-1; j++)
+		for (int j = 0; j < NODES_WIDTH; j++)
 		{
-			if (rand() % 100 + 1 <= percentOn)
+			if (i <= outLayer || j <= outLayer || i >= NODES_HEIGHT-outLayer-1 || j >= NODES_WIDTH - outLayer-1 || rand() % 100 + 1 <= percentOn)
 			{
-				indices[nextOpen] = i * VERTS_WIDTH + j;
-				indices[nextOpen + 1] = i * VERTS_WIDTH + j + VERTS_WIDTH + 1;
-				indices[nextOpen + 2] = i * VERTS_WIDTH + j + VERTS_WIDTH;
-				
-				indices[nextOpen+3] = i * VERTS_WIDTH + j;
-				indices[nextOpen+4] = i * VERTS_WIDTH + j + 1;
-				indices[nextOpen+5] = i * VERTS_WIDTH + j + VERTS_WIDTH + 1;
-				nextOpen += 6;
+				nodes[i][j] = true;
+			}
+			else
+			{
+				nodes[i][j] = false;
 			}
 		}
 	}
-	std::cout << "Made " << nextOpen << " verts" << std::endl;
+
+	int nextOpen = 0;
+
+	// Generate map of just nodes
+	//
+	//for (int i = 0; i < SQUARES_HEIGHT; i++)
+	//{
+	//	for (int j = 0; j < SQUARES_WIDTH; j++)
+	//	{
+	//		if (nodes[i][j])
+	//		{
+	//			nodeIndices[nextOpen] = 2*(i * VERTS_WIDTH + j);
+	//			nodeIndices[nextOpen + 1] = 2*(i * VERTS_WIDTH + j + VERTS_WIDTH + 1);
+	//			nodeIndices[nextOpen + 2] = 2*(i * VERTS_WIDTH + j + VERTS_WIDTH);
+	//			
+	//			nodeIndices[nextOpen+3] = 2*(i * VERTS_WIDTH +j);
+	//			nodeIndices[nextOpen+4] = 2*(i * VERTS_WIDTH + j + 1);
+	//			nodeIndices[nextOpen+5] = 2*(i * VERTS_WIDTH + j + VERTS_WIDTH + 1);
+	//			nextOpen += 6;
+	//		}
+	//	}
+	//}
+	//std::cout << "Made " << nextOpen << " verts" << std::endl;
+
+
+
+	// Marching Squares
+	nextOpen = 0;
+	uint8_t code = 0;
+	for (int i = 0; i < SQUARES_HEIGHT; i++)
+	{
+		for (int j = 0; j < SQUARES_WIDTH; j++)
+		{
+			code = 0;
+			if (nodes[i][j])
+				code += 1;
+			if (nodes[i][j+1])
+				code += 2;
+			if (nodes[i+1][j])
+				code += 4;
+			if (nodes[i+1][j+1])
+				code += 8;
+
+			GLuint startVert = 2 * (i * VERTS_WIDTH + j);
+			if (code != 0)
+			{
+				for (int tri = 1; tri <= squareCombs[code][0][0]; tri++)
+				{
+					indices[nextOpen] = startVert + squareCombs[code][tri][0];
+					indices[nextOpen + 1] = startVert + squareCombs[code][tri][1];
+					indices[nextOpen + 2] = startVert + squareCombs[code][tri][2];
+					nextOpen += 3;
+				};
+
+			};
+
+		}
+	}
 
 	// Initialize GLFW
 	glfwInit();
