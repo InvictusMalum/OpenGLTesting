@@ -12,11 +12,11 @@
 
 using namespace std;
 
-const GLint SCREEN_WIDTH = 1080;
-const GLint SCREEN_HEIGHT = 720;
+const GLint SCREEN_WIDTH = 800; 
+const GLint SCREEN_HEIGHT = 800; 
 
-const GLint SQUARES_WIDTH = 108;
-const GLint SQUARES_HEIGHT = 72;
+const GLint SQUARES_WIDTH = 300;
+const GLint SQUARES_HEIGHT = 300;
 
 const GLint NODES_WIDTH = SQUARES_WIDTH+1;
 const GLint NODES_HEIGHT = SQUARES_HEIGHT+1;
@@ -28,8 +28,9 @@ const int vSize = (VERTS_WIDTH * VERTS_HEIGHT * 3);
 
 GLfloat vertices[vSize];
 bool nodes[NODES_HEIGHT][NODES_WIDTH];
+bool oldNodes[NODES_HEIGHT][NODES_WIDTH];
 GLuint nodeIndices[SQUARES_HEIGHT * SQUARES_WIDTH * 6];
-GLuint indices[VERTS_HEIGHT * VERTS_WIDTH * 12];
+GLuint indices[VERTS_HEIGHT * VERTS_WIDTH * 3];
 
 int x = VERTS_WIDTH;
 
@@ -52,18 +53,63 @@ int squareCombs[16][5][3] = {
 	{{2}, {0,2,2*x+2},{0,2*x+2,2*x}}, // 15
 };
 
-int main() 
+int getSurroundingOnNodes(int i, int j)
 {
-
-	for (int i = 0; i < 16; i++)
+	int count = 0;
+	for (int neighborI = i - 1; neighborI <= i + 1; neighborI++)
 	{
-		for (int j = 0; j < 4; j++)
+		for (int neighborJ = j - 1; neighborJ <= j + 1; neighborJ++)
 		{
-			std::cout << " " << squareCombs[i][j][0] << " " << squareCombs[i][j][1] << " " << squareCombs[i][j][2] << std::endl;
+			if (neighborI != i || neighborJ != j)
+			{
+				if (neighborI >= 0 && neighborI < NODES_WIDTH && neighborJ >= 0 && neighborJ < NODES_HEIGHT)
+				{
+					if (oldNodes[neighborI][neighborJ])
+					{
+						count++;
+					}
+				}
+				else
+				{
+					count++;
+				}
+			}
+		}
+	}
+	return count;
+};
+
+void smoothMap()
+{
+	for (int i = 0; i < NODES_HEIGHT; i++)
+	{
+		for (int j = 0; j < NODES_WIDTH; j++)
+		{
+			oldNodes[i][j] = nodes[i][j];
+		}
+	}
+
+	for (int i = 0; i < NODES_HEIGHT; i++)
+	{
+		for (int j = 0; j < NODES_WIDTH; j++)
+		{
+			int count = getSurroundingOnNodes(i, j);
+			if (count > 4)
+			{
+				nodes[i][j] = true;
+			} 
+			else if (count < 4)
+			{
+				nodes[i][j] = false;
+			};
 		};
 	};
+};
 
 
+
+int main() 
+{
 	// Make all vertices
 	for (int i = 0; i < VERTS_HEIGHT; i++)
 	{
@@ -83,7 +129,7 @@ int main()
 	{
 		for (int j = 0; j < NODES_WIDTH; j++)
 		{
-			if (i <= outLayer || j <= outLayer || i >= NODES_HEIGHT-outLayer-1 || j >= NODES_WIDTH - outLayer-1 || rand() % 100 + 1 <= percentOn)
+			if (i == 0 || j == 0 || i == NODES_HEIGHT-1 || j == NODES_WIDTH -1 || rand() % 100 + 1 <= percentOn)
 			{
 				nodes[i][j] = true;
 			}
@@ -93,34 +139,14 @@ int main()
 			}
 		}
 	}
+	smoothMap();
+	smoothMap();
+	smoothMap();
+
+
 
 	int nextOpen = 0;
-
-	// Generate map of just nodes
-	//
-	//for (int i = 0; i < SQUARES_HEIGHT; i++)
-	//{
-	//	for (int j = 0; j < SQUARES_WIDTH; j++)
-	//	{
-	//		if (nodes[i][j])
-	//		{
-	//			nodeIndices[nextOpen] = 2*(i * VERTS_WIDTH + j);
-	//			nodeIndices[nextOpen + 1] = 2*(i * VERTS_WIDTH + j + VERTS_WIDTH + 1);
-	//			nodeIndices[nextOpen + 2] = 2*(i * VERTS_WIDTH + j + VERTS_WIDTH);
-	//			
-	//			nodeIndices[nextOpen+3] = 2*(i * VERTS_WIDTH +j);
-	//			nodeIndices[nextOpen+4] = 2*(i * VERTS_WIDTH + j + 1);
-	//			nodeIndices[nextOpen+5] = 2*(i * VERTS_WIDTH + j + VERTS_WIDTH + 1);
-	//			nextOpen += 6;
-	//		}
-	//	}
-	//}
-	//std::cout << "Made " << nextOpen << " verts" << std::endl;
-
-
-
 	// Marching Squares
-	nextOpen = 0;
 	uint8_t code = 0;
 	for (int i = 0; i < SQUARES_HEIGHT; i++)
 	{
@@ -142,15 +168,15 @@ int main()
 				for (int tri = 1; tri <= squareCombs[code][0][0]; tri++)
 				{
 					indices[nextOpen] = startVert + squareCombs[code][tri][0];
-					indices[nextOpen + 1] = startVert + squareCombs[code][tri][1];
-					indices[nextOpen + 2] = startVert + squareCombs[code][tri][2];
+					indices[nextOpen+1] = startVert + squareCombs[code][tri][1];
+					indices[nextOpen+2] = startVert + squareCombs[code][tri][2];
 					nextOpen += 3;
-				};
-
-			};
-
+				}
+			}
 		}
 	}
+
+	std::cout << "Made " << nextOpen << " verts" << std::endl;
 
 	// Initialize GLFW
 	glfwInit();
@@ -204,7 +230,7 @@ int main()
 
 
 		//glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Tell OpenGL the Shader Program we want to use
 		shaderProgram.Activate();
