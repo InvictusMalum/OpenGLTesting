@@ -35,6 +35,9 @@ public:
 	VAO VAO1;
 	VBO VBO1;
 	EBO	EBO1;
+	Shader shaderProgram2;
+	VAO VAO2;
+	EBO EBO2;
 
 
 	int SQUARES_WIDTH;
@@ -49,7 +52,8 @@ public:
 	GLfloat* vertices = NULL;
 	bool** nodes = NULL;
 	bool** oldNodes = NULL;
-	GLuint* nodeIndices = NULL;
+	//GLuint* nodeIndices = NULL;
+	GLuint* lineIndices = NULL;
 	GLuint* indices = NULL;
 };
 

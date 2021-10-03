@@ -18,8 +18,8 @@ using namespace std;
 const int SCREEN_WIDTH = 1080; 
 const int SCREEN_HEIGHT = 720; 
 
-const int SQUARES_WIDTH = 150;
-const int SQUARES_HEIGHT = 100;
+const int SQUARES_WIDTH = 60;
+const int SQUARES_HEIGHT = 40;
 
 Environment e(SQUARES_WIDTH, SQUARES_HEIGHT);
 Player p;
@@ -34,7 +34,7 @@ int main()
 	
 	// Initialize GLFW
 	glfwInit();
-	// Use Hints to tell GLFW what version of OpenGL we are using
+	// Use Hints to tell GLFW what version of OpenGL is being used
 	// OpenGL 3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -68,7 +68,7 @@ int main()
 
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1))
 		{
-			std::cout << "CLICK" << std::endl;
+			std::cout << "Click" << std::endl;
 		}
 
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);

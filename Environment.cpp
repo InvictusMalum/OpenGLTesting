@@ -37,7 +37,8 @@ Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 		oldNodes[i] = new bool[NODES_WIDTH];
 	}
 	
-	nodeIndices = new GLuint[(int64_t)SQUARES_HEIGHT * SQUARES_WIDTH * 6];
+	//nodeIndices = new GLuint[(int64_t)SQUARES_HEIGHT * SQUARES_WIDTH * 6];
+	lineIndices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 6];
 	indices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 3];
 }
 
@@ -179,6 +180,16 @@ void Environment::MarchSquares()
 					*(indices + nextOpen) = startVert + squareCombs[code][tri][0];
 					*(indices + nextOpen + 1) = startVert + squareCombs[code][tri][1];
 					*(indices + nextOpen + 2) = startVert + squareCombs[code][tri][2];
+					
+					*(lineIndices + 2 * nextOpen) = startVert + squareCombs[code][tri][0];
+					*(lineIndices + 2 * nextOpen + 1) = startVert + squareCombs[code][tri][1];
+					*(lineIndices + 2 * nextOpen + 2) = startVert + squareCombs[code][tri][1];
+					*(lineIndices + 2 * nextOpen + 3) = startVert + squareCombs[code][tri][2];
+					*(lineIndices + 2 * nextOpen + 4) = startVert + squareCombs[code][tri][2];
+					*(lineIndices + 2 * nextOpen + 5) = startVert + squareCombs[code][tri][0];
+					
+					
+					
 					nextOpen += 3;
 				}
 			}
@@ -195,32 +206,38 @@ void Environment::GenerateShaders()
 	VAO1.Generate();
 	VAO1.Bind();
 	// Generates Vertex Buffer Object and links it to vertices
-
-
-
-	
-	VBO1.Generate(vertices, (int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3 * 4);
+	VBO1.Generate(vertices, (int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3 * sizeof(*vertices));
 	// Generates Element Buffer Object and links it to indices
-	
-	
-	EBO1.Generate(indices, (int64_t)VERTS_HEIGHT * VERTS_WIDTH * 12);
+	EBO1.Generate(indices, (int64_t)VERTS_HEIGHT * VERTS_WIDTH * 3 * sizeof(*vertices));
 	// Links VBO to VAO
 	VAO1.LinkVBO(VBO1, 0);
 	// Unbind all to prevent accidentally modifying them
+	
+	shaderProgram2.Generate("default.vert", "red.frag");
+	VAO2.Generate();
+	VAO2.Bind();
+	EBO2.Generate(lineIndices, (int64_t)VERTS_HEIGHT * VERTS_WIDTH * 6 * sizeof(*vertices));
+	VAO2.LinkVBO(VBO1, 0);
+
 	VAO1.Unbind();
 	VBO1.Unbind();
 	EBO1.Unbind();
+	VAO2.Unbind();
+	EBO2.Unbind();
 }
 
 void Environment::Draw()
 {
-	// Tell OpenGL the Shader Program we want to use
+	// Tell OpenGL the Shader Program to use
 	shaderProgram.Activate();
 	// Bind VAO so OpenGL knows how to use it
 	VAO1.Bind();
 	// Draw the triangle using the GL_TRIANGLES primitive
 	glDrawElements(GL_TRIANGLES, numVertices, GL_UNSIGNED_INT, 0);
 
+	shaderProgram2.Activate();
+	VAO2.Bind();
+	glDrawElements(GL_LINES, numVertices*2, GL_UNSIGNED_INT, 0);
 }
 
 void Environment::ShaderClean()
