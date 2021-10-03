@@ -14,7 +14,16 @@ using namespace std;
 
 Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 {
-	//vertices = new GLfloat[(int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3];
+	SQUARES_WIDTH = SQUARES_WIDTH_;
+	SQUARES_HEIGHT = SQUARES_HEIGHT_;
+
+	NODES_WIDTH = SQUARES_WIDTH + 1;
+	NODES_HEIGHT = SQUARES_HEIGHT + 1;
+
+	VERTS_WIDTH = 2 * SQUARES_WIDTH + 1;
+	VERTS_HEIGHT = 2 * SQUARES_HEIGHT + 1;
+
+	vertices = new GLfloat[(int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3];
 	
 	nodes = new bool*[NODES_HEIGHT];
 	for (int i = 0; i < NODES_HEIGHT; i++)
@@ -28,8 +37,8 @@ Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 		oldNodes[i] = new bool[NODES_WIDTH];
 	}
 	
-	//nodeIndices = new GLuint[(int64_t)SQUARES_HEIGHT * SQUARES_WIDTH * 6];
-	//indices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 3];
+	nodeIndices = new GLuint[(int64_t)SQUARES_HEIGHT * SQUARES_WIDTH * 6];
+	indices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 3];
 }
 
 void Environment::GenerateVertices()
@@ -38,9 +47,9 @@ void Environment::GenerateVertices()
 	{
 		for (int j = 0; j < VERTS_WIDTH; j++)
 		{
-			vertices[(i * VERTS_WIDTH + j) * 3] = (GLfloat)(j) / (VERTS_WIDTH - 1) * 2 - 1;
-			vertices[(i * VERTS_WIDTH + j) * 3 + 1] = -((GLfloat)(i) / (VERTS_HEIGHT - 1) * 2 - 1);
-			vertices[(i * VERTS_WIDTH + j) * 3 + 2] = 0;
+			*(vertices + ((int64_t)i * VERTS_WIDTH + j) * 3) = (GLfloat)(j) / (VERTS_WIDTH - 1) * 2 - 1;
+			*(vertices + ((int64_t)i * VERTS_WIDTH + j) * 3 + 1) = -((GLfloat)(i) / (VERTS_HEIGHT - 1) * 2 - 1);
+			*(vertices + ((int64_t)i * VERTS_WIDTH + j) * 3 + 2) = 0;
 		}
 	}
 }
@@ -99,7 +108,7 @@ void Environment::SmoothMap()
 void Environment::GenerateNodeMap()
 {
 	srand(time(NULL));
-	int percentOn = 47;
+	int percentOn = 50;
 	int outLayer = 0;
 	// Generating random nodes
 	for (int i = 0; i < NODES_HEIGHT; i++)
@@ -122,15 +131,8 @@ void Environment::GenerateNodeMap()
 	}
 }
 
-int Environment::GetSquares()
-{
-
-	return 4;
-}
-
 void Environment::MarchSquares()
 {
-	
 	int squareCombs[16][5][3] = {
 	{{0}, { 0,0,0 }}, // 0
 	{{1}, {0,1,VERTS_WIDTH}}, // 1
@@ -174,9 +176,9 @@ void Environment::MarchSquares()
 			{
 				for (int tri = 1; tri <= squareCombs[code][0][0]; tri++)
 				{
-					indices[nextOpen] = startVert + squareCombs[code][tri][0];
-					indices[nextOpen + 1] = startVert + squareCombs[code][tri][1];
-					indices[nextOpen + 2] = startVert + squareCombs[code][tri][2];
+					*(indices + nextOpen) = startVert + squareCombs[code][tri][0];
+					*(indices + nextOpen + 1) = startVert + squareCombs[code][tri][1];
+					*(indices + nextOpen + 2) = startVert + squareCombs[code][tri][2];
 					nextOpen += 3;
 				}
 			}
@@ -194,9 +196,14 @@ void Environment::GenerateShaders()
 	VAO1.Bind();
 	// Generates Vertex Buffer Object and links it to vertices
 
-	VBO1.Generate(vertices, sizeof(vertices));
+
+
+	
+	VBO1.Generate(vertices, (int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3 * 4);
 	// Generates Element Buffer Object and links it to indices
-	EBO1.Generate(indices, sizeof(indices));
+	
+	
+	EBO1.Generate(indices, (int64_t)VERTS_HEIGHT * VERTS_WIDTH * 12);
 	// Links VBO to VAO
 	VAO1.LinkVBO(VBO1, 0);
 	// Unbind all to prevent accidentally modifying them
@@ -224,7 +231,6 @@ void Environment::ShaderClean()
 	EBO1.Delete();
 	shaderProgram.Delete();
 }
-
 
 void Environment::Destroy()
 {

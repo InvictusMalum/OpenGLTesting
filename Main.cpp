@@ -18,12 +18,11 @@ using namespace std;
 const int SCREEN_WIDTH = 1080; 
 const int SCREEN_HEIGHT = 720; 
 
-const int SQUARES_WIDTH = 50;
-const int SQUARES_HEIGHT = 50;
+const int SQUARES_WIDTH = 150;
+const int SQUARES_HEIGHT = 100;
 
 Environment e(SQUARES_WIDTH, SQUARES_HEIGHT);
 Player p;
-
 
 int main() 
 {
@@ -74,7 +73,6 @@ int main()
 
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
 
 		e.Draw();
 
