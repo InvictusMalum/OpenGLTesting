@@ -1,4 +1,7 @@
+#include <iostream>
 #include<math.h>
+#define _USE_MATH_DEFINES
+
 #include"Ray.h"
 
 using namespace std;
@@ -40,4 +43,10 @@ void Ray::setStart(Vector2 startPos_)
 void Ray::setIncreaseIncrement(Vector2 increaseIncrement_)
 {
 	increaseIncrement = increaseIncrement_;
+}
+
+Vector2 Ray::getVectorAtAngle(float angle)
+{
+	double radians = angle * 3.1415926535 / 180.0;
+	return Vector2((float) cos(radians), (float) sin(radians));
 }

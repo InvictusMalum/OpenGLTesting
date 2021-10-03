@@ -17,7 +17,8 @@ public:
 	void CastUntilHits();
 	void setStart(Vector2 startPos_);
 	void setIncreaseIncrement(Vector2 increaseIncrement_);
-	
+
+	static Vector2 getVectorAtAngle(float angle);
 	
 	Vector2 start;
 	Vector2 increaseIncrement;
