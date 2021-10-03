@@ -28,8 +28,8 @@ public:
 	
 	int numVertices = NULL;
 
-	static const int SQUARES_WIDTH = 60;
-	static const int SQUARES_HEIGHT = 60;
+	static const int SQUARES_WIDTH = 200;
+	static const int SQUARES_HEIGHT = 200;
 
 	static const int NODES_WIDTH = SQUARES_WIDTH + 1;
 	static const int NODES_HEIGHT = SQUARES_HEIGHT + 1;

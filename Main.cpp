@@ -21,6 +21,9 @@ const int SCREEN_HEIGHT = 1000;
 const int SQUARES_WIDTH = 50;
 const int SQUARES_HEIGHT = 50;
 
+Environment e(SQUARES_WIDTH, SQUARES_HEIGHT);
+Player p;
+
 GLfloat vertices[] =
 {
 	-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower Left
@@ -40,10 +43,8 @@ GLuint indices[] =
 
 int main() 
 {
-	Player p;
 	p.populateRays();
 	
-	Environment e(SQUARES_WIDTH, SQUARES_HEIGHT);
 	e.generateVertices();
 	e.generateNodeMap();
 	e.marchSquares();
