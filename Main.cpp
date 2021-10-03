@@ -15,8 +15,8 @@
 
 using namespace std;
 
-const int SCREEN_WIDTH = 1000; 
-const int SCREEN_HEIGHT = 1000; 
+const int SCREEN_WIDTH = 1080; 
+const int SCREEN_HEIGHT = 720; 
 
 const int SQUARES_WIDTH = 50;
 const int SQUARES_HEIGHT = 50;
@@ -24,30 +24,14 @@ const int SQUARES_HEIGHT = 50;
 Environment e(SQUARES_WIDTH, SQUARES_HEIGHT);
 Player p;
 
-GLfloat vertices[] =
-{
-	-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower Left
-	0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower Right
-	0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, // Top
-	-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner Left
-	0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner Right
-	0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // Inner Down
-};
-
-GLuint indices[] =
-{
-	0, 3, 5, // Lower left triangle
-	3, 2, 4, // Lower right triangle
-	5, 4, 1 // Upper triangle
-};
 
 int main() 
 {
 	p.populateRays();
 	
-	e.generateVertices();
-	e.generateNodeMap();
-	e.marchSquares();
+	e.GenerateVertices();
+	e.GenerateNodeMap();
+	e.MarchSquares();
 	
 	// Initialize GLFW
 	glfwInit();
@@ -73,22 +57,7 @@ int main()
 	// Tell GLAD the viewport size of OpenGL in the window
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	Shader shaderProgram("default.vert", "default.frag");
-
-	// Generates Vertex Array Object and binds it
-	VAO VAO1;
-	VAO1.Bind();
-	// Generates Vertex Buffer Object and links it to vertices
-	
-	VBO VBO1(e.vertices, sizeof(e.vertices));
-	// Generates Element Buffer Object and links it to indices
-	EBO EBO1(e.indices, sizeof(e.indices));
-	// Links VBO to VAO
-	VAO1.LinkVBO(VBO1, 0);
-	// Unbind all to prevent accidentally modifying them
-	VAO1.Unbind();
-	VBO1.Unbind();
-	EBO1.Unbind();
+	e.GenerateShaders();
 
 	// Main while loop until window should close
 	while (!glfwWindowShouldClose(window))
@@ -107,12 +76,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 
-		// Tell OpenGL the Shader Program we want to use
-		shaderProgram.Activate();
-		// Bind VAO so OpenGL knows how to use it
-		VAO1.Bind();
-		// Draw the triangle using the GL_TRIANGLES primitive
-		glDrawElements(GL_TRIANGLES, e.numVertices, GL_UNSIGNED_INT, 0);
+		e.Draw();
 
 		// Update Screen
 		// Swap back and front buffers
@@ -121,14 +85,8 @@ int main()
 		glfwPollEvents();
 
 	}
-
-	// Clean up, delete objects created
-	VAO1.Delete();
-	VBO1.Delete();
-	EBO1.Delete();
-	shaderProgram.Delete();
-
-	e.destroy();
+	e.ShaderClean();
+	e.Destroy();
 
 	// End program
 	glfwDestroyWindow(window);

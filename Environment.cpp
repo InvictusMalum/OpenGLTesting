@@ -14,7 +14,7 @@ using namespace std;
 
 Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 {
-	/*vertices = new GLfloat[(int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3];
+	//vertices = new GLfloat[(int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3];
 	
 	nodes = new bool*[NODES_HEIGHT];
 	for (int i = 0; i < NODES_HEIGHT; i++)
@@ -28,11 +28,11 @@ Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 		oldNodes[i] = new bool[NODES_WIDTH];
 	}
 	
-	nodeIndices = new GLuint[(int64_t)SQUARES_HEIGHT * SQUARES_WIDTH * 6];
-	indices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 3];*/
+	//nodeIndices = new GLuint[(int64_t)SQUARES_HEIGHT * SQUARES_WIDTH * 6];
+	//indices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 3];
 }
 
-void Environment::generateVertices()
+void Environment::GenerateVertices()
 {
 	for (int i = 0; i < VERTS_HEIGHT; i++)
 	{
@@ -45,7 +45,7 @@ void Environment::generateVertices()
 	}
 }
 
-int Environment::getSurroundingOnNodes(int i, int j)
+int Environment::GetSurroundingOnNodes(int i, int j)
 {
 	int count = 0;
 	for (int neighborI = i - 1; neighborI <= i + 1; neighborI++)
@@ -70,7 +70,7 @@ int Environment::getSurroundingOnNodes(int i, int j)
 	return count;
 }
 
-void Environment::smoothMap()
+void Environment::SmoothMap()
 {
 	for (int i = 0; i < NODES_HEIGHT; i++)
 	{
@@ -84,7 +84,7 @@ void Environment::smoothMap()
 	{
 		for (int j = 0; j < NODES_WIDTH; j++)
 		{
-			int count = getSurroundingOnNodes(i, j);
+			int count = GetSurroundingOnNodes(i, j);
 			if (count > 4)
 			{
 				nodes[i][j] = true;
@@ -96,10 +96,10 @@ void Environment::smoothMap()
 	};
 }
 
-void Environment::generateNodeMap()
+void Environment::GenerateNodeMap()
 {
 	srand(time(NULL));
-	int percentOn = 43;
+	int percentOn = 47;
 	int outLayer = 0;
 	// Generating random nodes
 	for (int i = 0; i < NODES_HEIGHT; i++)
@@ -118,17 +118,17 @@ void Environment::generateNodeMap()
 	// Smoothing nodes
 	for (int i = 0; i < 10; i++)
 	{
-		smoothMap();
+		SmoothMap();
 	}
 }
 
-int Environment::getSquares()
+int Environment::GetSquares()
 {
 
 	return 4;
 }
 
-void Environment::marchSquares()
+void Environment::MarchSquares()
 {
 	
 	int squareCombs[16][5][3] = {
@@ -185,7 +185,48 @@ void Environment::marchSquares()
 	numVertices = nextOpen;
 }
 
-void Environment::destroy()
+void Environment::GenerateShaders()
+{
+	shaderProgram.Generate("default.vert", "default.frag");
+
+	// Generates Vertex Array Object and binds it
+	VAO1.Generate();
+	VAO1.Bind();
+	// Generates Vertex Buffer Object and links it to vertices
+
+	VBO1.Generate(vertices, sizeof(vertices));
+	// Generates Element Buffer Object and links it to indices
+	EBO1.Generate(indices, sizeof(indices));
+	// Links VBO to VAO
+	VAO1.LinkVBO(VBO1, 0);
+	// Unbind all to prevent accidentally modifying them
+	VAO1.Unbind();
+	VBO1.Unbind();
+	EBO1.Unbind();
+}
+
+void Environment::Draw()
+{
+	// Tell OpenGL the Shader Program we want to use
+	shaderProgram.Activate();
+	// Bind VAO so OpenGL knows how to use it
+	VAO1.Bind();
+	// Draw the triangle using the GL_TRIANGLES primitive
+	glDrawElements(GL_TRIANGLES, numVertices, GL_UNSIGNED_INT, 0);
+
+}
+
+void Environment::ShaderClean()
+{
+	// Clean up, delete objects created
+	VAO1.Delete();
+	VBO1.Delete();
+	EBO1.Delete();
+	shaderProgram.Delete();
+}
+
+
+void Environment::Destroy()
 {
 	/*delete[] vertices;
 
