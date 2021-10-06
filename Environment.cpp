@@ -1,4 +1,5 @@
 #include<iostream>
+#include<unordered_set>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include <stdlib.h>
@@ -12,6 +13,78 @@
 
 using namespace std;
 
+Triangle::Triangle()
+{
+
+}
+
+void Triangle::SetVerts(GLuint v1_, GLuint v2_, GLuint v3_)
+{
+	v1 = v1_;
+	v2 = v2_;
+	v3 = v3_;
+}
+
+Square::Square()
+{
+
+}
+
+void Square::SetCorners(GLuint c1_, GLuint c4_)
+{
+	c1 = c1_;
+	c2 = c1_ + 2;
+	c3 = c4_ - 2;
+	c4 = c4_;
+}
+
+void Square::MarchSquare(bool** nodes, int squareCombs[16][5][3], int VERTS_WIDTH)
+{
+	GLuint j = c1 / 2 % VERTS_WIDTH;
+	GLuint i = (c1 / 2 - j) / VERTS_WIDTH;
+
+	code = 0;
+	if (nodes[i][j])
+		code += 1;
+	if (nodes[i][j + 1])
+		code += 2;
+	if (nodes[i + 1][j])
+		code += 4;
+	if (nodes[i + 1][j + 1])
+		code += 8;
+
+	GLuint startVert = c1;
+	if (code != 0)
+	{
+		triNum = squareCombs[code][0][0];
+		tris = new Triangle[triNum];
+		for (int tri = 1; tri <= triNum; tri++)
+		{
+			tris[tri-1].SetVerts(c1 + squareCombs[code][tri][0], c1 + squareCombs[code][tri][1], c1 + squareCombs[code][tri][2]);
+		}
+	}
+}
+
+GLuint* Square::GetOutlineLines()
+{
+	GLuint* out = new GLuint[6];
+	unordered_set <GLuint> uniqueVerts;
+	for (int i = 0; i < triNum; i++)
+	{
+		uniqueVerts.insert(tris[i].v1);
+		uniqueVerts.insert(tris[i].v2);
+		uniqueVerts.insert(tris[i].v3);
+	}
+	int x = 0;
+	for (auto const& i : uniqueVerts)
+	{
+		out[x] = i;
+		x++;
+	}
+	std::cout << out[0] << std::endl;
+	return out;
+}
+
 Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 {
 	SQUARES_WIDTH = SQUARES_WIDTH_;
@@ -23,6 +96,14 @@ Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 	VERTS_WIDTH = 2 * SQUARES_WIDTH + 1;
 	VERTS_HEIGHT = 2 * SQUARES_HEIGHT + 1;
 
+	squares = new Square[(int64_t)SQUARES_WIDTH * SQUARES_HEIGHT];
+	for (int i = 0; i < SQUARES_HEIGHT; i++)
+	{
+		for (int j = 0; j < SQUARES_WIDTH; j++)
+		{
+			squares[(int64_t)i * SQUARES_WIDTH + j].SetCorners(2*(i * VERTS_WIDTH + j), 2*(i * SQUARES_WIDTH + j) + 2*VERTS_WIDTH + 2);
+		}
+	}
 	vertices = new GLfloat[(int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3];
 	
 	nodes = new bool*[NODES_HEIGHT];
@@ -38,8 +119,10 @@ Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 	}
 	
 	//nodeIndices = new GLuint[(int64_t)SQUARES_HEIGHT * SQUARES_WIDTH * 6];
-	lineIndices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 6];
+	
 	indices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 3];
+	lineIndices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 6];
+	exteriorLineIndices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 6];
 }
 
 void Environment::GenerateVertices()
@@ -132,6 +215,68 @@ void Environment::GenerateNodeMap()
 	}
 }
 
+void Environment::MarchAllSquares()
+{
+	int squareCombs[16][5][3] = {
+	{{0}, { 0,0,0 }}, // 0
+	{{1}, {0,1,VERTS_WIDTH}}, // 1
+	{{1}, {1,2,VERTS_WIDTH + 2}}, // 2
+	{{2}, {0,VERTS_WIDTH + 2,VERTS_WIDTH},{0,2,VERTS_WIDTH + 2}}, // 3
+	{{1}, {VERTS_WIDTH,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 4
+	{{2}, {0,1,2 * VERTS_WIDTH},{1,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 5
+	{{4}, {1,2,VERTS_WIDTH},{2,2 * VERTS_WIDTH,VERTS_WIDTH},{2,VERTS_WIDTH + 2,2 * VERTS_WIDTH},{VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 6
+	{{3}, {0,2,VERTS_WIDTH + 2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1},{0,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 7
+	{{1}, {VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1}}, // 8
+	{{4}, {0,1,VERTS_WIDTH + 2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2},{0,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1},{0,2 * VERTS_WIDTH + 1,VERTS_WIDTH}}, // 9
+	{{2}, {1,2,2 * VERTS_WIDTH + 1},{2,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH + 2}}, // 10
+	{{3}, {0,2,VERTS_WIDTH},{2,2 * VERTS_WIDTH + 1,VERTS_WIDTH},{2,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1}}, // 11
+	{{2}, {VERTS_WIDTH,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2},{VERTS_WIDTH,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 12
+	{{3}, {0,1,2 * VERTS_WIDTH},{1,VERTS_WIDTH + 2,2 * VERTS_WIDTH},{VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 13
+	{{3}, {1,2,2 * VERTS_WIDTH + 2},{1,2 * VERTS_WIDTH + 2,VERTS_WIDTH},{VERTS_WIDTH,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 14
+	{{2}, {0,2,2 * VERTS_WIDTH + 2},{0,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 15
+	};
+
+	int nextOpen = 0;
+	int nextLineOpen = 0;
+	int nextExteriorLineOpen = 0;
+	for (int i = 0; i < SQUARES_HEIGHT; i++)
+	{
+		for (int j = 0; j < SQUARES_WIDTH; j++)
+		{
+			Square s = *(squares + (int64_t)i * SQUARES_WIDTH + j);
+			s.MarchSquare(nodes, squareCombs, VERTS_WIDTH);
+			for (int h = 0; h < s.triNum; h++)
+			{
+				indices[nextOpen] = s.tris[h].v1;
+				indices[nextOpen + 1] = s.tris[h].v2;
+				indices[nextOpen + 2] = s.tris[h].v3;
+				nextOpen += 3;
+
+				lineIndices[nextLineOpen] = s.tris[h].v1;
+				lineIndices[nextLineOpen + 1] = s.tris[h].v2;
+				lineIndices[nextLineOpen + 2] = s.tris[h].v2;
+				lineIndices[nextLineOpen + 3] = s.tris[h].v3;
+				lineIndices[nextLineOpen + 4] = s.tris[h].v3;
+				lineIndices[nextLineOpen + 5] = s.tris[h].v1;
+				nextLineOpen += 6;
+			}
+			
+			GLuint* outlineVerts = s.GetOutlineLines();
+			for (int g = 0; g < sizeof(outlineVerts) / sizeof(outlineVerts[0])-1; g++)
+			{
+				exteriorLineIndices[nextExteriorLineOpen] = outlineVerts[g];
+				exteriorLineIndices[nextExteriorLineOpen+1] = outlineVerts[g+1];
+				nextExteriorLineOpen += 2;
+			}
+			exteriorLineIndices[nextExteriorLineOpen] = outlineVerts[0];
+			exteriorLineIndices[nextExteriorLineOpen+1] = outlineVerts[sizeof(outlineVerts) / sizeof(outlineVerts[0])-1];
+			nextExteriorLineOpen += 2;
+		}
+	}
+	numMeshVerts = nextOpen;
+	numLineVerts = nextLineOpen;
+}
+
 void Environment::MarchSquares()
 {
 	int squareCombs[16][5][3] = {
@@ -154,7 +299,9 @@ void Environment::MarchSquares()
 	};
 
 	// Index for next vertex, starts at 0, increments by 1 whenever a vertex is made.
-	int nextOpen = 0;
+	int nextMeshOpen = 0;
+	int nextLineOpen = 0;
+	int nextExteriorLineOpen = 0;
 	// Making Tris using marching Squares
 	uint8_t code = 0;
 	// March squares
@@ -177,25 +324,24 @@ void Environment::MarchSquares()
 			{
 				for (int tri = 1; tri <= squareCombs[code][0][0]; tri++)
 				{
-					*(indices + nextOpen) = startVert + squareCombs[code][tri][0];
-					*(indices + nextOpen + 1) = startVert + squareCombs[code][tri][1];
-					*(indices + nextOpen + 2) = startVert + squareCombs[code][tri][2];
-					
-					*(lineIndices + 2 * nextOpen) = startVert + squareCombs[code][tri][0];
-					*(lineIndices + 2 * nextOpen + 1) = startVert + squareCombs[code][tri][1];
-					*(lineIndices + 2 * nextOpen + 2) = startVert + squareCombs[code][tri][1];
-					*(lineIndices + 2 * nextOpen + 3) = startVert + squareCombs[code][tri][2];
-					*(lineIndices + 2 * nextOpen + 4) = startVert + squareCombs[code][tri][2];
-					*(lineIndices + 2 * nextOpen + 5) = startVert + squareCombs[code][tri][0];
-					
-					
-					
-					nextOpen += 3;
+					*(indices + nextMeshOpen) = startVert + squareCombs[code][tri][0];
+					*(indices + nextMeshOpen + 1) = startVert + squareCombs[code][tri][1];
+					*(indices + nextMeshOpen + 2) = startVert + squareCombs[code][tri][2];
+					nextMeshOpen += 3;
+
+					*(lineIndices + nextLineOpen) = startVert + squareCombs[code][tri][0];
+					*(lineIndices + nextLineOpen + 1) = startVert + squareCombs[code][tri][1];
+					*(lineIndices + nextLineOpen + 2) = startVert + squareCombs[code][tri][1];
+					*(lineIndices + nextLineOpen + 3) = startVert + squareCombs[code][tri][2];
+					*(lineIndices + nextLineOpen + 4) = startVert + squareCombs[code][tri][2];
+					*(lineIndices + nextLineOpen + 5) = startVert + squareCombs[code][tri][0];
+					nextLineOpen += 6;
 				}
 			}
 		}
 	}
-	numVertices = nextOpen;
+	numMeshVerts = nextMeshOpen;
+	numLineVerts = nextLineOpen;
 }
 
 void Environment::GenerateShaders()
@@ -219,11 +365,22 @@ void Environment::GenerateShaders()
 	EBO2.Generate(lineIndices, (int64_t)VERTS_HEIGHT * VERTS_WIDTH * 6 * sizeof(*vertices));
 	VAO2.LinkVBO(VBO1, 0);
 
+	shaderProgram3.Generate("default.vert", "red.frag");
+	VAO3.Generate();
+	VAO3.Bind();
+	EBO3.Generate(exteriorLineIndices, (int64_t)VERTS_HEIGHT * VERTS_WIDTH * 6 * sizeof(*vertices));
+	VAO3.LinkVBO(VBO1, 0);
+
+
 	VAO1.Unbind();
 	VBO1.Unbind();
 	EBO1.Unbind();
+	
 	VAO2.Unbind();
 	EBO2.Unbind();
+
+	VAO3.Unbind();
+	EBO3.Unbind();
 }
 
 void Environment::Draw()
@@ -233,11 +390,15 @@ void Environment::Draw()
 	// Bind VAO so OpenGL knows how to use it
 	VAO1.Bind();
 	// Draw the triangle using the GL_TRIANGLES primitive
-	glDrawElements(GL_TRIANGLES, numVertices, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, numMeshVerts, GL_UNSIGNED_INT, 0);
 
 	shaderProgram2.Activate();
 	VAO2.Bind();
-	glDrawElements(GL_LINES, numVertices*2, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_LINES, numLineVerts*2, GL_UNSIGNED_INT, 0);
+
+	shaderProgram3.Activate();
+	VAO3.Bind();
+	glDrawElements(GL_LINES, numLineVerts * 2, GL_UNSIGNED_INT, 0);
 }
 
 void Environment::ShaderClean()

@@ -13,6 +13,38 @@
 
 using namespace std;
 
+class Triangle
+{
+public:
+	Triangle();
+	void SetVerts(GLuint v1, GLuint v2, GLuint v3);
+
+	GLuint v1;
+	GLuint v2;
+	GLuint v3;
+};
+
+
+class Square
+{
+public:
+	Square();
+	void SetCorners(GLuint c1_, GLuint c4_);
+	void MarchSquare(bool** nodes, int squareCombs[16][5][3], int VERTS_WIDTH);
+	GLuint* GetOutlineLines();
+	
+	Triangle* tris;
+	int triNum;
+	uint8_t code = 0;
+
+	GLuint c1;
+	GLuint c2;
+	GLuint c3;
+	GLuint c4;
+};
+
+
+
 class Environment
 {
 public:
@@ -21,6 +53,8 @@ public:
 	int GetSurroundingOnNodes(int i, int j);
 	void SmoothMap();
 	void GenerateNodeMap();
+	
+	void MarchAllSquares();
 	void MarchSquares();
 	
 	void GenerateShaders();
@@ -29,7 +63,8 @@ public:
 	
 	void Destroy();
 	
-	int numVertices = NULL;
+	int numMeshVerts = NULL;
+	int numLineVerts = NULL;
 
 	Shader shaderProgram;
 	VAO VAO1;
@@ -38,7 +73,9 @@ public:
 	Shader shaderProgram2;
 	VAO VAO2;
 	EBO EBO2;
-
+	Shader shaderProgram3;
+	VAO VAO3;
+	EBO EBO3;
 
 	int SQUARES_WIDTH;
 	int SQUARES_HEIGHT;
@@ -48,13 +85,16 @@ public:
 
 	int VERTS_WIDTH;
 	int VERTS_HEIGHT;
+	
+	Square* squares = NULL;
 
 	GLfloat* vertices = NULL;
 	bool** nodes = NULL;
 	bool** oldNodes = NULL;
 	//GLuint* nodeIndices = NULL;
-	GLuint* lineIndices = NULL;
 	GLuint* indices = NULL;
+	GLuint* lineIndices = NULL;
+	GLuint* exteriorLineIndices = NULL;
 };
 
 #endif
