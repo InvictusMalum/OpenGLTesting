@@ -26,7 +26,7 @@ Player p;
 
 int main() 
 {
-	p.populateRays();
+	p.PopulateRays();
 	
 	e.GenerateVertices();
 	e.GenerateNodeMap();
@@ -61,11 +61,14 @@ int main()
 	// Main while loop until window should close
 	while (!glfwWindowShouldClose(window))
 	{
-		if (glfwGetKey(window, GLFW_KEY_SPACE))
+		if (glfwGetKey(window, GLFW_KEY_LEFT))
 		{
-			std::cout << "SPACE" << std::endl;
+			p.Turn(-1);
 		}
-
+		if (glfwGetKey(window, GLFW_KEY_RIGHT))
+		{
+			p.Turn(1);
+		}
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1))
 		{
 			std::cout << "Click" << std::endl;

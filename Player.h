@@ -12,8 +12,13 @@ public:
 	Player();
 	Player(Vector2 pos_);
 	Player(Vector2 pos_, float ang_);
-	Ray createRay(float angle);
-	void populateRays();
+	
+	void Turn(float ang_);
+	
+	Ray CreateRay(float angle);
+	void PopulateRays();
+
+	void DrawSelf();
 
 	Vector2 pos;
 	double angle;

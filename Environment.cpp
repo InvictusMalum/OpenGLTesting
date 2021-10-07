@@ -379,13 +379,13 @@ void Environment::Draw()
 
 	shaderProgram3.Activate();
 	VAO3.Bind();
-	//glDrawElements(GL_LINES, numExtLineVerts, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_LINES, numExtLineVerts, GL_UNSIGNED_INT, 0);
 
 	shaderProgram4.Activate();
 	VAO4.Bind();
-	glLineWidth(3);
-	glEnable(GL_LINE_SMOOTH);
-	glDrawElements(GL_LINES, numUnqExtLineVerts, GL_UNSIGNED_INT, 0);
+	glLineWidth(1);
+	//glEnable(GL_LINE_SMOOTH);
+	//glDrawElements(GL_LINES, numUnqExtLineVerts, GL_UNSIGNED_INT, 0);
 }
 
 void Environment::ShaderClean()
