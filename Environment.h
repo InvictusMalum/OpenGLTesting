@@ -30,11 +30,14 @@ class Square
 public:
 	Square();
 	void SetCorners(GLuint c1_, GLuint c4_);
-	void MarchSquare(bool** nodes, int squareCombs[16][5][3], int VERTS_WIDTH);
+	void MarchSquare(bool** nodes, int squareCombs[16][5][3], int outLineCombs[16][3][2], int VERTS_WIDTH);
 	GLuint* GetOutlineLines();
 	
+	int numOutVerts;
+	GLuint* outVerts;
+
 	Triangle* tris;
-	int triNum;
+	int numTris;
 	uint8_t code = 0;
 
 	GLuint c1;
@@ -55,27 +58,41 @@ public:
 	void GenerateNodeMap();
 	
 	void MarchAllSquares();
-	void MarchSquares();
-	
+
 	void GenerateShaders();
 	void Draw();
 	void ShaderClean();
 	
 	void Destroy();
 	
-	int numMeshVerts = NULL;
-	int numLineVerts = NULL;
+	GLfloat* vertices = NULL;
+	bool** nodes = NULL;
+	bool** oldNodes = NULL;
 
+	GLuint* indices = NULL;
+	int numMeshVerts = NULL;
 	Shader shaderProgram;
 	VAO VAO1;
 	VBO VBO1;
 	EBO	EBO1;
+	
+	GLuint* lineIndices = NULL;
+	int numLineVerts = NULL;
 	Shader shaderProgram2;
 	VAO VAO2;
 	EBO EBO2;
+	
+	GLuint* extLineIndices = NULL;
+	int numExtLineVerts = NULL;
 	Shader shaderProgram3;
 	VAO VAO3;
 	EBO EBO3;
+
+	GLuint* unqExtLineIndices = NULL;
+	int numUnqExtLineVerts = NULL;
+	Shader shaderProgram4;
+	VAO VAO4;
+	EBO EBO4;
 
 	int SQUARES_WIDTH;
 	int SQUARES_HEIGHT;
@@ -88,13 +105,8 @@ public:
 	
 	Square* squares = NULL;
 
-	GLfloat* vertices = NULL;
-	bool** nodes = NULL;
-	bool** oldNodes = NULL;
 	//GLuint* nodeIndices = NULL;
-	GLuint* indices = NULL;
-	GLuint* lineIndices = NULL;
-	GLuint* exteriorLineIndices = NULL;
+
 };
 
 #endif
