@@ -80,8 +80,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\tyler\programs\OpenGLTesting1\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\tyler\programs\OpenGLTesting1\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\tylerweed\source\repos\InvictusMalum\OpenGLTesting\Libraries\include;C:\Users\tyler\programs\OpenGLTesting1\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\tylerweed\source\repos\InvictusMalum\OpenGLTesting\Libraries\lib;C:\Users\tyler\programs\OpenGLTesting1\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -152,6 +152,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="shaderClass.cpp" />
+    <ClCompile Include="GLFWClass.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
     <ClCompile Include="Vector2.cpp" />
@@ -164,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="EBO.h" />
     <ClInclude Include="Environment.h" />
+    <ClInclude Include="glfwClass.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="shaderClass.h" />

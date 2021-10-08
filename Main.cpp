@@ -9,6 +9,7 @@
 #include"Vector2.h"
 #include"Player.h"
 #include"Environment.h"
+#include"glfwClass.h"
 
 #include <stdlib.h>
 #include <list>
@@ -32,29 +33,12 @@ int main()
 	e.GenerateNodeMap();
 	e.MarchAllSquares();
 	
-	// Initialize GLFW
-	glfwInit();
-	// Use Hints to tell GLFW what version of OpenGL is being used
-	// OpenGL 3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	// Tell GLFW we are using the core profile
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	// Create a GLFW window, width SCREEN_WIDTH, height SCREEN_HEIGHT, named "OpenGLTest"
-	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGLTest", NULL, NULL);
-	// If window fails to be created
+	
+	GLFWwindow* window = GLFWClass::StartUp(SCREEN_WIDTH, SCREEN_HEIGHT);
 	if (window == NULL)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
 		return -1;
 	}
-	// Make window be in current context
-	glfwMakeContextCurrent(window);
-	// Load GLAD to configure OpenGL
-	gladLoadGL();
-	// Tell GLAD the viewport size of OpenGL in the window
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	e.GenerateShaders();
 

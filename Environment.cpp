@@ -74,6 +74,7 @@ void Square::MarchSquare(bool** nodes, int squareCombs[16][5][3], int outLineCom
 			{
 				outVerts[nextVert] = c1 + outLineCombs[code][i][0];
 				outVerts[nextVert+1] = c1 + outLineCombs[code][i][1];
+				nextVert += 2;
 			}
 		}
 	}
@@ -371,7 +372,7 @@ void Environment::Draw()
 	// Bind VAO so OpenGL knows how to use it
 	VAO1.Bind();
 	// Draw the triangle using the GL_TRIANGLES primitive
-	glDrawElements(GL_TRIANGLES, numMeshVerts, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLES, numMeshVerts, GL_UNSIGNED_INT, 0);
 
 	shaderProgram2.Activate();
 	VAO2.Bind();
@@ -379,13 +380,13 @@ void Environment::Draw()
 
 	shaderProgram3.Activate();
 	VAO3.Bind();
-	glDrawElements(GL_LINES, numExtLineVerts, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_LINES, numExtLineVerts, GL_UNSIGNED_INT, 0);
 
 	shaderProgram4.Activate();
 	VAO4.Bind();
 	glLineWidth(1);
 	//glEnable(GL_LINE_SMOOTH);
-	//glDrawElements(GL_LINES, numUnqExtLineVerts, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_LINES, numUnqExtLineVerts, GL_UNSIGNED_INT, 0);
 }
 
 void Environment::ShaderClean()
