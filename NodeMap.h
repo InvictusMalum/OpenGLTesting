@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef NODEMAP
-#define NODEMAP
+#ifndef NODEMAP_H
+#define NODEMAP_H
 
 using namespace std;
 
@@ -17,11 +17,16 @@ public:
 	void SmoothMap();
 	void GenerateNodeMap();
 
+	void SetRegionNumbers();
+	void Spread(int i, int j, int num);
+
 	int NODES_WIDTH;
 	int NODES_HEIGHT;
 
 	int** nodes = NULL;
 	int** oldNodes = NULL;
+
+	int maxRegionNum = 0;
 };
 
 #endif

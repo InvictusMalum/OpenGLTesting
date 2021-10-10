@@ -19,8 +19,8 @@ using namespace std;
 const int SCREEN_WIDTH = 1080; 
 const int SCREEN_HEIGHT = 720; 
 
-const int SQUARES_WIDTH = 30;
-const int SQUARES_HEIGHT = 20;
+const int SQUARES_WIDTH = 150;
+const int SQUARES_HEIGHT = 100;
 
 Environment e(SQUARES_WIDTH, SQUARES_HEIGHT);
 Player p;

@@ -103,3 +103,41 @@ void NodeMap::GenerateNodeMap()
 		SmoothMap();
 	}
 }
+
+void NodeMap::SetRegionNumbers()
+{
+	int nextSpreadNum = 2;
+	for (int i = 0; i < NODES_HEIGHT; i++)
+	{
+		for (int j = 0; j < NODES_WIDTH; j++)
+		{
+			if (nodes[i][j] == 1)
+			{
+				Spread(i, j, nextSpreadNum);
+				nextSpreadNum++;
+			}
+		}
+	}
+	maxRegionNum = nextSpreadNum-1;
+}
+
+void NodeMap::Spread(int i, int j, int num)
+{
+	nodes[i][j] = num;
+	if (nodes[i + 1][j] == 1)
+	{
+		Spread(i + 1, j, num);
+	}
+	if (nodes[i - 1][j] == 1)
+	{
+		Spread(i - 1, j, num);
+	}
+	if (nodes[i][j+1] == 1)
+	{
+		Spread(i, j+1, num);
+	}
+	if (nodes[i][j-1] == 1)
+	{
+		Spread(i, j-1, num);
+	}
+}
