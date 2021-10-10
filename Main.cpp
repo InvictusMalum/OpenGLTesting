@@ -31,6 +31,7 @@ int main()
 	
 	e.GenerateVertices();
 	e.GenerateNodes();
+	e.SetDrawingNodes();
 	e.MarchAllSquares();
 	
 	
@@ -52,10 +53,21 @@ int main()
 		if (glfwGetKey(window, GLFW_KEY_RIGHT))
 		{
 			p.Turn(1);
+			e.nM.SmoothMap();
+			e.SetDrawingNodes();
+			e.MarchAllSquares();
+			e.GenerateShaders();
 		}
+
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1))
 		{
 			std::cout << "Click" << std::endl;
+			e = Environment(SQUARES_WIDTH, SQUARES_HEIGHT);
+			e.GenerateVertices();
+			e.GenerateNodes();
+			e.SetDrawingNodes();
+			e.MarchAllSquares();
+			e.GenerateShaders();
 		}
 
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);

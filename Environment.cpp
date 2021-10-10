@@ -61,10 +61,15 @@ void Environment::GenerateVertices()
 	}
 }
 
-void Environment::GenerateNodes()
-{
+void Environment::GenerateNodes() {
 	nM.GenerateNodeMap();
 	nM.SetRegionNumbers();
+}
+
+void Environment::SetDrawingNodes()
+{
+	onNodes = DrawingData((int64_t)NODES_WIDTH * NODES_HEIGHT * 3);
+	offNodes = DrawingData((int64_t)NODES_WIDTH * NODES_HEIGHT * 3);
 	for (int i = 0; i < NODES_HEIGHT; i++)
 	{
 		for (int j = 0; j < NODES_WIDTH; j++)
@@ -82,6 +87,11 @@ void Environment::GenerateNodes()
 
 void Environment::MarchAllSquares()
 {
+	mainMesh = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3);
+	allLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
+	exteriorLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
+	uniqueExteriorLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
+	
 	int squareCombs[16][5][3] = {
 		{{0}, { 0,0,0 }}, // 0
 		{{1}, {0,1,VERTS_WIDTH}}, // 1
@@ -189,7 +199,7 @@ void Environment::Draw()
 
 	exteriorLines.shaderProgram.Activate();
 	exteriorLines.VAO.Bind();
-	glDrawElements(GL_LINES, exteriorLines.numVerts, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_LINES, exteriorLines.numVerts, GL_UNSIGNED_INT, 0);
 
 	uniqueExteriorLines.shaderProgram.Activate();
 	uniqueExteriorLines.VAO.Bind();
@@ -198,11 +208,11 @@ void Environment::Draw()
 	glPointSize(5);
 	onNodes.shaderProgram.Activate();
 	onNodes.VAO.Bind();
-	glDrawElements(GL_POINTS, onNodes.numVerts, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_POINTS, onNodes.numVerts, GL_UNSIGNED_INT, 0);
 
 	offNodes.shaderProgram.Activate();
 	offNodes.VAO.Bind();
-	glDrawElements(GL_POINTS, offNodes.numVerts, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_POINTS, offNodes.numVerts, GL_UNSIGNED_INT, 0);
 }
 
 void Environment::ShaderClean()

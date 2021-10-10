@@ -24,6 +24,7 @@ public:
 	void GenerateVertices();
 	
 	void GenerateNodes();
+	void SetDrawingNodes();
 
 	void MarchAllSquares();
 

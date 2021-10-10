@@ -100,7 +100,7 @@ void NodeMap::GenerateNodeMap()
 	// Smoothing nodes
 	for (int i = 0; i < 10; i++)
 	{
-		SmoothMap();
+		//SmoothMap();
 	}
 }
 
@@ -118,25 +118,25 @@ void NodeMap::SetRegionNumbers()
 			}
 		}
 	}
-	maxRegionNum = nextSpreadNum-1;
+	maxRegionNum = nextSpreadNum - 1;
 }
 
 void NodeMap::Spread(int i, int j, int num)
 {
 	nodes[i][j] = num;
-	if (nodes[i + 1][j] == 1)
+	if (nodes[i + 1][j] != 0 && nodes[i + 1][j] != num)
 	{
 		Spread(i + 1, j, num);
 	}
-	if (nodes[i - 1][j] == 1)
+	if (nodes[i - 1][j] != 0 && nodes[i - 1][j] != num)
 	{
 		Spread(i - 1, j, num);
 	}
-	if (nodes[i][j+1] == 1)
+	if (nodes[i][j + 1] != 0 && nodes[i][j + 1] != num)
 	{
 		Spread(i, j+1, num);
 	}
-	if (nodes[i][j-1] == 1)
+	if (nodes[i][j - 1] != 0 && nodes[i][j - 1] != num)
 	{
 		Spread(i, j-1, num);
 	}
