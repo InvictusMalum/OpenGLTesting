@@ -9,6 +9,7 @@
 #include"EBO.h"
 
 #include"DrawingData.h"
+#include"NodeMap.h"
 
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
@@ -32,7 +33,7 @@ class Square
 public:
 	Square();
 	void SetCorners(GLuint c1_, GLuint c4_);
-	void MarchSquare(bool** nodes, int squareCombs[16][5][3], int outLineCombs[16][3][2], int VERTS_WIDTH);
+	void MarchSquare(int** nodes, int squareCombs[16][5][3], int outLineCombs[16][3][2], int VERTS_WIDTH);
 	GLuint* GetOutlineLines();
 	
 	int numOutVerts;
@@ -55,10 +56,9 @@ class Environment
 public:
 	Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_);
 	void GenerateVertices();
-	int GetSurroundingOnNodes(int i, int j);
-	void SmoothMap();
-	void GenerateNodeMap();
 	
+	void GenerateNodes();
+
 	void MarchAllSquares();
 
 	void GenerateShaders();
@@ -68,10 +68,8 @@ public:
 	void Destroy();
 	
 	GLfloat* vertices = NULL;
-	bool** nodes = NULL;
-	bool** oldNodes = NULL;
-
-
+	
+	NodeMap nM;
 
 	VBO VBO;
 

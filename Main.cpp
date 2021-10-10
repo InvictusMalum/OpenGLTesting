@@ -30,7 +30,7 @@ int main()
 	p.PopulateRays();
 	
 	e.GenerateVertices();
-	e.GenerateNodeMap();
+	e.GenerateNodes();
 	e.MarchAllSquares();
 	
 	

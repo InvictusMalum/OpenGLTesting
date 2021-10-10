@@ -38,19 +38,19 @@ void Square::SetCorners(GLuint c1_, GLuint c4_)
 	c4 = c4_;
 }
 
-void Square::MarchSquare(bool** nodes, int squareCombs[16][5][3], int outLineCombs[16][3][2], int VERTS_WIDTH)
+void Square::MarchSquare(int** nodes, int squareCombs[16][5][3], int outLineCombs[16][3][2], int VERTS_WIDTH)
 {
 	GLuint j = c1 / 2 % VERTS_WIDTH;
 	GLuint i = (c1 / 2 - j) / VERTS_WIDTH;
 
 	code = 0;
-	if (nodes[i][j])
+	if (nodes[i][j] == 0)
 		code += 1;
-	if (nodes[i][j + 1])
+	if (nodes[i][j + 1] == 0)
 		code += 2;
-	if (nodes[i + 1][j])
+	if (nodes[i + 1][j] == 0)
 		code += 4;
-	if (nodes[i + 1][j + 1])
+	if (nodes[i + 1][j + 1] == 0)
 		code += 8;
 
 	GLuint startVert = c1;
@@ -112,18 +112,8 @@ Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 			squares[(int64_t)i * SQUARES_WIDTH + j].SetCorners(2*(i * VERTS_WIDTH + j), 2*(i * SQUARES_WIDTH + j) + 2*VERTS_WIDTH + 2);
 		}
 	}
-	
-	nodes = new bool*[NODES_HEIGHT];
-	for (int i = 0; i < NODES_HEIGHT; i++)
-	{
-		nodes[i] = new bool[NODES_WIDTH];
-	}
-	
-	oldNodes = new bool*[NODES_HEIGHT];
-	for (int i = 0; i < NODES_HEIGHT; i++)
-	{
-		oldNodes[i] = new bool[NODES_WIDTH];
-	}
+
+	nM = NodeMap(NODES_WIDTH, NODES_HEIGHT);
 	
 	vertices = new GLfloat[(int64_t)VERTS_WIDTH * VERTS_HEIGHT*6];
 
@@ -149,90 +139,18 @@ void Environment::GenerateVertices()
 	}
 }
 
-int Environment::GetSurroundingOnNodes(int i, int j)
+void Environment::GenerateNodes()
 {
-	int count = 0;
-	for (int neighborI = i - 1; neighborI <= i + 1; neighborI++)
-	{
-		for (int neighborJ = j - 1; neighborJ <= j + 1; neighborJ++)
-		{
-			if (neighborI != i || neighborJ != j)
-			{
-				if (neighborI >= 0 && neighborI < NODES_HEIGHT && neighborJ >= 0 && neighborJ < NODES_WIDTH)
-				{
-					if (oldNodes[neighborI][neighborJ])
-					{
-						count++;
-					}
-				} else
-				{
-					count++;
-				}
-			}
-		}
-	}
-	return count;
-}
-
-void Environment::SmoothMap()
-{
-	for (int i = 0; i < NODES_HEIGHT; i++)
-	{
-		for (int j = 0; j < NODES_WIDTH; j++)
-		{
-			oldNodes[i][j] = nodes[i][j];
-		}
-	}
+	nM.GenerateNodeMap();
 
 	for (int i = 0; i < NODES_HEIGHT; i++)
 	{
 		for (int j = 0; j < NODES_WIDTH; j++)
 		{
-			int count = GetSurroundingOnNodes(i, j);
-			if (count > 4)
+			if (nM.nodes[i][j] == 0)
 			{
-				nodes[i][j] = true;
-			} else if (count < 4)
-			{
-				nodes[i][j] = false;
-			};
-		};
-	};
-}
-
-void Environment::GenerateNodeMap()
-{
-	srand(time(NULL));
-	int percentOn = 50;
-	int outLayer = 0;
-	// Generating random nodes
-	for (int i = 0; i < NODES_HEIGHT; i++)
-	{
-		for (int j = 0; j < NODES_WIDTH; j++)
-		{
-			if (i == 0 || j == 0 || i == NODES_HEIGHT - 1 || j == NODES_WIDTH - 1 || rand() % 100 + 1 <= percentOn)
-			{
-				nodes[i][j] = true;
-			} else
-			{
-				nodes[i][j] = false;
-			}
-		}
-	}
-	// Smoothing nodes
-	for (int i = 0; i < 10; i++)
-	{
-		SmoothMap();
-	}
-	
-	for (int i = 0; i < NODES_HEIGHT; i++)
-	{
-		for (int j = 0; j < NODES_WIDTH; j++)
-		{
-			if (nodes[i][j] == true) {
 				onNodes.AddIndex(2 * (i * VERTS_WIDTH + j));
-			} 
-			else
+			} else
 			{
 				offNodes.AddIndex(2 * (i * VERTS_WIDTH + j));
 			}
@@ -285,7 +203,7 @@ void Environment::MarchAllSquares()
 		for (int j = 0; j < SQUARES_WIDTH; j++)
 		{
 			Square s = squares[(int64_t)i * SQUARES_WIDTH + j];
-			s.MarchSquare(nodes, squareCombs, outLineCombs, VERTS_WIDTH);
+			s.MarchSquare(nM.nodes, squareCombs, outLineCombs, VERTS_WIDTH);
 			if (s.code != 0)
 			{
 				for (int h = 0; h < s.numTris; h++)
