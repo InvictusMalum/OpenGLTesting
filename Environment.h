@@ -8,6 +8,8 @@
 #include"VBO.h"
 #include"EBO.h"
 
+#include"DrawingData.h"
+
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 
@@ -69,30 +71,17 @@ public:
 	bool** nodes = NULL;
 	bool** oldNodes = NULL;
 
-	GLuint* indices = NULL;
-	int numMeshVerts = NULL;
-	Shader shaderProgram;
-	VAO VAO1;
-	VBO VBO1;
-	EBO	EBO1;
-	
-	GLuint* lineIndices = NULL;
-	int numLineVerts = NULL;
-	Shader shaderProgram2;
-	VAO VAO2;
-	EBO EBO2;
-	
-	GLuint* extLineIndices = NULL;
-	int numExtLineVerts = NULL;
-	Shader shaderProgram3;
-	VAO VAO3;
-	EBO EBO3;
 
-	GLuint* unqExtLineIndices = NULL;
-	int numUnqExtLineVerts = NULL;
-	Shader shaderProgram4;
-	VAO VAO4;
-	EBO EBO4;
+
+	VBO VBO;
+
+	DrawingData mainMesh = NULL;
+	DrawingData allLines = NULL;
+	DrawingData exteriorLines = NULL;
+	DrawingData uniqueExteriorLines = NULL;
+
+	DrawingData onNodes = NULL;
+	DrawingData offNodes = NULL;
 
 	int SQUARES_WIDTH;
 	int SQUARES_HEIGHT;
@@ -104,8 +93,6 @@ public:
 	int VERTS_HEIGHT;
 	
 	Square* squares = NULL;
-
-	//GLuint* nodeIndices = NULL;
 
 };
 

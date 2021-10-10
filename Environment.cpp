@@ -101,8 +101,8 @@ Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 	NODES_WIDTH = SQUARES_WIDTH + 1;
 	NODES_HEIGHT = SQUARES_HEIGHT + 1;
 
-	VERTS_WIDTH = 2 * SQUARES_WIDTH + 1;
-	VERTS_HEIGHT = 2 * SQUARES_HEIGHT + 1;
+	VERTS_WIDTH = 2 * NODES_WIDTH - 1;
+	VERTS_HEIGHT = 2 * NODES_HEIGHT - 1;
 
 	squares = new Square[(int64_t)SQUARES_WIDTH * SQUARES_HEIGHT];
 	for (int i = 0; i < SQUARES_HEIGHT; i++)
@@ -112,7 +112,6 @@ Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 			squares[(int64_t)i * SQUARES_WIDTH + j].SetCorners(2*(i * VERTS_WIDTH + j), 2*(i * SQUARES_WIDTH + j) + 2*VERTS_WIDTH + 2);
 		}
 	}
-	vertices = new GLfloat[(int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3];
 	
 	nodes = new bool*[NODES_HEIGHT];
 	for (int i = 0; i < NODES_HEIGHT; i++)
@@ -126,12 +125,15 @@ Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 		oldNodes[i] = new bool[NODES_WIDTH];
 	}
 	
-	//nodeIndices = new GLuint[(int64_t)SQUARES_HEIGHT * SQUARES_WIDTH * 6];
-	
-	indices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 3];
-	lineIndices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 6];
-	extLineIndices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 6];
-	unqExtLineIndices = new GLuint[(int64_t)VERTS_HEIGHT * VERTS_WIDTH * 6];
+	vertices = new GLfloat[(int64_t)VERTS_WIDTH * VERTS_HEIGHT*6];
+
+	mainMesh = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3);
+	allLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
+	exteriorLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
+	uniqueExteriorLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
+
+	onNodes = DrawingData((int64_t)NODES_WIDTH * NODES_HEIGHT * 3);
+	offNodes = DrawingData((int64_t)NODES_WIDTH * NODES_HEIGHT * 3);
 }
 
 void Environment::GenerateVertices()
@@ -222,27 +224,41 @@ void Environment::GenerateNodeMap()
 	{
 		SmoothMap();
 	}
+	
+	for (int i = 0; i < NODES_HEIGHT; i++)
+	{
+		for (int j = 0; j < NODES_WIDTH; j++)
+		{
+			if (nodes[i][j] == true) {
+				onNodes.AddIndex(2 * (i * VERTS_WIDTH + j));
+			} 
+			else
+			{
+				offNodes.AddIndex(2 * (i * VERTS_WIDTH + j));
+			}
+		}
+	}
 }
 
 void Environment::MarchAllSquares()
 {
 	int squareCombs[16][5][3] = {
-	{{0}, { 0,0,0 }}, // 0
-	{{1}, {0,1,VERTS_WIDTH}}, // 1
-	{{1}, {1,2,VERTS_WIDTH + 2}}, // 2
-	{{2}, {0,2,VERTS_WIDTH + 2}, {0,VERTS_WIDTH + 2,VERTS_WIDTH}}, // 3
-	{{1}, {2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH,VERTS_WIDTH},}, // 4
-	{{2}, {0,1,2 * VERTS_WIDTH+1},{0,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 5
-	{{4}, {1,2,VERTS_WIDTH+2},{1,VERTS_WIDTH+2,2*VERTS_WIDTH+1},{1,2*VERTS_WIDTH + 1,2 * VERTS_WIDTH},{1,2 * VERTS_WIDTH,VERTS_WIDTH}}, // 6
-	{{3}, {0,2,VERTS_WIDTH + 2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1},{0,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 7
-	{{1}, {VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1}}, // 8
-	{{4}, {0,1,VERTS_WIDTH + 2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2},{0,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1},{0,2 * VERTS_WIDTH + 1,VERTS_WIDTH}}, // 9
-	{{2}, {1,2,2 * VERTS_WIDTH + 2},{1,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1}}, // 10
-	{{3}, {0,2,2*VERTS_WIDTH+2},{0,2 * VERTS_WIDTH + 2,2*VERTS_WIDTH+1},{0,2 * VERTS_WIDTH + 1,VERTS_WIDTH}}, // 11
-	{{2}, {VERTS_WIDTH,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2},{VERTS_WIDTH,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 12
-	{{3}, {0,1,VERTS_WIDTH+2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH+2},{0,2 * VERTS_WIDTH+2,2*VERTS_WIDTH}}, // 13
-	{{3}, {1,2,2*VERTS_WIDTH + 2},{1,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH},{1,2 * VERTS_WIDTH,VERTS_WIDTH}}, // 14
-	{{2}, {0,2,2 * VERTS_WIDTH + 2},{0,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 15
+		{{0}, { 0,0,0 }}, // 0
+		{{1}, {0,1,VERTS_WIDTH}}, // 1
+		{{1}, {1,2,VERTS_WIDTH + 2}}, // 2
+		{{2}, {0,2,VERTS_WIDTH + 2}, {0,VERTS_WIDTH + 2,VERTS_WIDTH}}, // 3
+		{{1}, {2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH,VERTS_WIDTH},}, // 4
+		{{2}, {0,1,2 * VERTS_WIDTH+1},{0,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 5
+		{{4}, {1,2,VERTS_WIDTH+2},{1,VERTS_WIDTH+2,2*VERTS_WIDTH+1},{1,2*VERTS_WIDTH + 1,2 * VERTS_WIDTH},{1,2 * VERTS_WIDTH,VERTS_WIDTH}}, // 6
+		{{3}, {0,2,VERTS_WIDTH + 2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1},{0,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 7
+		{{1}, {VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1}}, // 8
+		{{4}, {0,1,VERTS_WIDTH + 2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2},{0,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1},{0,2 * VERTS_WIDTH + 1,VERTS_WIDTH}}, // 9
+		{{2}, {1,2,2 * VERTS_WIDTH + 2},{1,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1}}, // 10
+		{{3}, {0,2,2*VERTS_WIDTH+2},{0,2 * VERTS_WIDTH + 2,2*VERTS_WIDTH+1},{0,2 * VERTS_WIDTH + 1,VERTS_WIDTH}}, // 11
+		{{2}, {VERTS_WIDTH,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2},{VERTS_WIDTH,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 12
+		{{3}, {0,1,VERTS_WIDTH+2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH+2},{0,2 * VERTS_WIDTH+2,2*VERTS_WIDTH}}, // 13
+		{{3}, {1,2,2*VERTS_WIDTH + 2},{1,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH},{1,2 * VERTS_WIDTH,VERTS_WIDTH}}, // 14
+		{{2}, {0,2,2 * VERTS_WIDTH + 2},{0,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 15
 	};
 
 	int outLineCombs[16][3][2] = {
@@ -264,10 +280,6 @@ void Environment::MarchAllSquares()
 		{{0}}, // 15
 	};
 
-	int nextOpen = 0;
-	int nextLineOpen = 0;
-	int nextExtLineOpen = 0;
-	int nextUnqExtLineOpen = 0;
 	for (int i = 0; i < SQUARES_HEIGHT; i++)
 	{
 		for (int j = 0; j < SQUARES_WIDTH; j++)
@@ -278,124 +290,91 @@ void Environment::MarchAllSquares()
 			{
 				for (int h = 0; h < s.numTris; h++)
 				{
-					indices[nextOpen] = s.tris[h].v1;
-					indices[nextOpen + 1] = s.tris[h].v2;
-					indices[nextOpen + 2] = s.tris[h].v3;
-					nextOpen += 3;
+					mainMesh.AddIndex(s.tris[h].v1);
+					mainMesh.AddIndex(s.tris[h].v2);
+					mainMesh.AddIndex(s.tris[h].v3);
 
-					lineIndices[nextLineOpen] = s.tris[h].v1;
-					lineIndices[nextLineOpen + 1] = s.tris[h].v2;
-					lineIndices[nextLineOpen + 2] = s.tris[h].v2;
-					lineIndices[nextLineOpen + 3] = s.tris[h].v3;
-					lineIndices[nextLineOpen + 4] = s.tris[h].v3;
-					lineIndices[nextLineOpen + 5] = s.tris[h].v1;
-					nextLineOpen += 6;
+					allLines.AddIndex(s.tris[h].v1);
+					allLines.AddIndex(s.tris[h].v2);
+					allLines.AddIndex(s.tris[h].v2);
+					allLines.AddIndex(s.tris[h].v3);
+					allLines.AddIndex(s.tris[h].v3);
+					allLines.AddIndex(s.tris[h].v1);
 				}
 
 				GLuint* outlineVerts = s.GetOutlineLines();
 				for (int g = 0; g < s.numTris + 1; g++)
 				{
-					extLineIndices[nextExtLineOpen] = outlineVerts[g];
-					extLineIndices[nextExtLineOpen + 1] = outlineVerts[g + 1];
-					nextExtLineOpen += 2;
+					exteriorLines.AddIndex(outlineVerts[g]);
+					exteriorLines.AddIndex(outlineVerts[g + 1]);
 				}
-				extLineIndices[nextExtLineOpen] = outlineVerts[s.numTris + 1];
-				extLineIndices[nextExtLineOpen + 1] = outlineVerts[0];
-				nextExtLineOpen += 2;
+				exteriorLines.AddIndex(outlineVerts[s.numTris + 1]);
+				exteriorLines.AddIndex(outlineVerts[0]);
 
 				for (int f = 0; f < s.numOutVerts; f++)
 				{
-					unqExtLineIndices[nextUnqExtLineOpen] = s.outVerts[f];
-					nextUnqExtLineOpen++;
+					uniqueExteriorLines.AddIndex(s.outVerts[f]);
 				}
 			}
 		}
 	}
-	numMeshVerts = nextOpen;
-	numLineVerts = nextLineOpen;
-	numExtLineVerts = nextExtLineOpen;
-	numUnqExtLineVerts = nextUnqExtLineOpen;
 }
 
 void Environment::GenerateShaders()
 {
-	shaderProgram.Generate("default.vert", "default.frag");
-
-	// Generates Vertex Array Object and binds it
-	VAO1.Generate();
-	VAO1.Bind();
 	// Generates Vertex Buffer Object and links it to vertices
-	VBO1.Generate(vertices, (int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3 * sizeof(*vertices));
-	// Generates Element Buffer Object and links it to indices
-	EBO1.Generate(indices, numMeshVerts * sizeof(*vertices));
-	// Links VBO to VAO
-	VAO1.LinkVBO(VBO1, 0);
-	// Unbind all to prevent accidentally modifying them
+	VBO.Generate(vertices, (int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3 * sizeof(*vertices));
 	
-	shaderProgram2.Generate("default.vert", "red.frag");
-	VAO2.Generate();
-	VAO2.Bind();
-	EBO2.Generate(lineIndices, numLineVerts * sizeof(*vertices));
-	VAO2.LinkVBO(VBO1, 0);
+	mainMesh.Generate(VBO, "default.vert", "black.frag", sizeof(*vertices));
 
-	shaderProgram3.Generate("default.vert", "red.frag");
-	VAO3.Generate();
-	VAO3.Bind();
-	EBO3.Generate(extLineIndices, (numExtLineVerts) * sizeof(*vertices));
-	VAO3.LinkVBO(VBO1, 0);
+	allLines.Generate(VBO, "default.vert", "red.frag", sizeof(*vertices));
 
-	shaderProgram4.Generate("default.vert", "red.frag");
-	VAO4.Generate();
-	VAO4.Bind();
-	EBO4.Generate(unqExtLineIndices, numUnqExtLineVerts * sizeof(*vertices));
-	VAO4.LinkVBO(VBO1, 0);
+	exteriorLines.Generate(VBO, "default.vert", "red.frag", sizeof(*vertices));
 
+	uniqueExteriorLines.Generate(VBO, "default.vert", "red.frag", sizeof(*vertices));
 
-	VAO1.Unbind();
-	VBO1.Unbind();
-	EBO1.Unbind();
-	
-	VAO2.Unbind();
-	EBO2.Unbind();
-
-	VAO3.Unbind();
-	EBO3.Unbind();
-
-	VAO4.Unbind();
-	EBO4.Unbind();
+	onNodes.Generate(VBO, "default.vert", "green.frag", sizeof(*vertices));
+	offNodes.Generate(VBO, "default.vert", "black.frag", sizeof(*vertices));
 }
 
 void Environment::Draw()
 {
-	// Tell OpenGL the Shader Program to use
-	shaderProgram.Activate();
-	// Bind VAO so OpenGL knows how to use it
-	VAO1.Bind();
-	// Draw the triangle using the GL_TRIANGLES primitive
-	//glDrawElements(GL_TRIANGLES, numMeshVerts, GL_UNSIGNED_INT, 0);
+	mainMesh.shaderProgram.Activate();
+	mainMesh.VAO.Bind();
+	glDrawElements(GL_TRIANGLES, mainMesh.numVerts, GL_UNSIGNED_INT, 0);
 
-	shaderProgram2.Activate();
-	VAO2.Bind();
-	//glDrawElements(GL_LINES, numLineVerts, GL_UNSIGNED_INT, 0);
+	allLines.shaderProgram.Activate();
+	allLines.VAO.Bind();
+	//glDrawElements(GL_LINES, allLines.numVerts, GL_UNSIGNED_INT, 0);
 
-	shaderProgram3.Activate();
-	VAO3.Bind();
-	//glDrawElements(GL_LINES, numExtLineVerts, GL_UNSIGNED_INT, 0);
+	exteriorLines.shaderProgram.Activate();
+	exteriorLines.VAO.Bind();
+	glDrawElements(GL_LINES, exteriorLines.numVerts, GL_UNSIGNED_INT, 0);
 
-	shaderProgram4.Activate();
-	VAO4.Bind();
-	glLineWidth(1);
-	//glEnable(GL_LINE_SMOOTH);
-	glDrawElements(GL_LINES, numUnqExtLineVerts, GL_UNSIGNED_INT, 0);
+	uniqueExteriorLines.shaderProgram.Activate();
+	uniqueExteriorLines.VAO.Bind();
+	//glDrawElements(GL_LINES, uniqueExteriorLines.numVerts, GL_UNSIGNED_INT, 0);
+
+	glPointSize(5);
+	onNodes.shaderProgram.Activate();
+	onNodes.VAO.Bind();
+	glDrawElements(GL_POINTS, onNodes.numVerts, GL_UNSIGNED_INT, 0);
+
+	offNodes.shaderProgram.Activate();
+	offNodes.VAO.Bind();
+	glDrawElements(GL_POINTS, offNodes.numVerts, GL_UNSIGNED_INT, 0);
 }
 
 void Environment::ShaderClean()
 {
 	// Clean up, delete objects created
-	VAO1.Delete();
-	VBO1.Delete();
-	EBO1.Delete();
-	shaderProgram.Delete();
+	VBO.Delete();
+	mainMesh.ShaderClean();
+	allLines.ShaderClean();
+	exteriorLines.ShaderClean();
+	uniqueExteriorLines.ShaderClean();
+	onNodes.ShaderClean();
+	offNodes.ShaderClean();
 }
 
 void Environment::Destroy()

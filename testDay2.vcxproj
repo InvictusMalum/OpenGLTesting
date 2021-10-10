@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DrawingData.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="Environment.cpp" />
     <ClCompile Include="glad.c" />
@@ -158,11 +159,13 @@
     <ClCompile Include="Vector2.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.frag" />
+    <None Include="black.frag" />
     <None Include="default.vert" />
     <None Include="red.frag" />
+    <None Include="green.frag" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DrawingData.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="Environment.h" />
     <ClInclude Include="glfwClass.h" />
