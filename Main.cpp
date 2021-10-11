@@ -46,28 +46,68 @@ int main()
 	// Main while loop until window should close
 	while (!glfwWindowShouldClose(window))
 	{
-		if (glfwGetKey(window, GLFW_KEY_LEFT))
-		{
-			p.Turn(-1);
-		}
 		if (glfwGetKey(window, GLFW_KEY_RIGHT))
 		{
-			p.Turn(1);
 			e.nM.SmoothMap();
+			e.nM.SetRegionNumbers();
 			e.SetDrawingNodes();
 			e.MarchAllSquares();
+			
+			e.ShaderClean();
 			e.GenerateShaders();
 		}
 
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1))
+		if (glfwGetKey(window, GLFW_KEY_SPACE))
 		{
-			std::cout << "Click" << std::endl;
-			e = Environment(SQUARES_WIDTH, SQUARES_HEIGHT);
-			e.GenerateVertices();
 			e.GenerateNodes();
 			e.SetDrawingNodes();
 			e.MarchAllSquares();
+			
+			e.ShaderClean();
 			e.GenerateShaders();
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_UP))
+		{
+			e.RotateSelected(1);
+			e.SetDrawingNodes();
+			
+			e.ShaderClean();
+			e.GenerateShaders();
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_DOWN))
+		{
+			e.RotateSelected(-1);
+			e.SetDrawingNodes();
+			
+			e.ShaderClean();
+			e.GenerateShaders();
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_1))
+		{
+			e.ToggleMesh();
+		}
+		if (glfwGetKey(window, GLFW_KEY_2))
+		{
+			e.ToggleLines();
+		}
+		if (glfwGetKey(window, GLFW_KEY_3))
+		{
+			e.ToggleExteriors();
+		}
+		if (glfwGetKey(window, GLFW_KEY_4))
+		{
+			e.ToggleUniques();
+		}
+		if (glfwGetKey(window, GLFW_KEY_5))
+		{
+			e.ToggleOns();
+		}
+		if (glfwGetKey(window, GLFW_KEY_6))
+		{
+			e.ToggleOffs();
 		}
 
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);

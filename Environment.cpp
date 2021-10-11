@@ -39,13 +39,13 @@ Environment::Environment(int SQUARES_WIDTH_, int SQUARES_HEIGHT_)
 	
 	vertices = new GLfloat[(int64_t)VERTS_WIDTH * VERTS_HEIGHT*6];
 
+	onNodes = DrawingData((int64_t)NODES_WIDTH * NODES_HEIGHT * 3);
+	offNodes = DrawingData((int64_t)NODES_WIDTH * NODES_HEIGHT * 3);
+
 	mainMesh = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3);
 	allLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
 	exteriorLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
 	uniqueExteriorLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
-
-	onNodes = DrawingData((int64_t)NODES_WIDTH * NODES_HEIGHT * 3);
-	offNodes = DrawingData((int64_t)NODES_WIDTH * NODES_HEIGHT * 3);
 }
 
 void Environment::GenerateVertices()
@@ -68,8 +68,8 @@ void Environment::GenerateNodes() {
 
 void Environment::SetDrawingNodes()
 {
-	onNodes = DrawingData((int64_t)NODES_WIDTH * NODES_HEIGHT * 3);
-	offNodes = DrawingData((int64_t)NODES_WIDTH * NODES_HEIGHT * 3);
+	onNodes.Reset();
+	offNodes.Reset();
 	for (int i = 0; i < NODES_HEIGHT; i++)
 	{
 		for (int j = 0; j < NODES_WIDTH; j++)
@@ -77,7 +77,7 @@ void Environment::SetDrawingNodes()
 			if (nM.nodes[i][j] == 0)
 			{
 				onNodes.AddIndex(2 * (i * VERTS_WIDTH + j));
-			} else if (nM.nodes[i][j] == 2)
+			} else if (nM.nodes[i][j] == selectedRegion)
 			{
 				offNodes.AddIndex(2 * (i * VERTS_WIDTH + j));
 			}
@@ -85,12 +85,29 @@ void Environment::SetDrawingNodes()
 	}
 }
 
+void Environment::RotateSelected(int n)
+{
+	if (rotationTimer == 0) {
+		rotationTimer = rotationMax;
+		selectedRegion += n;
+		if (selectedRegion < 2)
+		{
+			selectedRegion = nM.maxRegionNum;
+		}
+		if (selectedRegion > nM.maxRegionNum)
+		{
+			selectedRegion = 2;
+		}
+		std::cout << selectedRegion << std::endl;
+	}
+}
+
 void Environment::MarchAllSquares()
 {
-	mainMesh = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3);
-	allLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
-	exteriorLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
-	uniqueExteriorLines = DrawingData((int64_t)VERTS_WIDTH * VERTS_HEIGHT * 6);
+	mainMesh.Reset();
+	allLines.Reset();
+	exteriorLines.Reset();
+	uniqueExteriorLines.Reset();
 	
 	int squareCombs[16][5][3] = {
 		{{0}, { 0,0,0 }}, // 0
@@ -170,6 +187,60 @@ void Environment::MarchAllSquares()
 	}
 }
 
+void Environment::ToggleMesh()
+{
+	if (meshCountdown == 0)
+	{
+		renderMesh = !renderMesh;
+		meshCountdown = countdownMax;
+	}
+}
+
+void Environment::ToggleLines()
+{
+	if (linesCountdown == 0)
+	{
+		renderLines = !renderLines;
+		linesCountdown = countdownMax;
+	}
+}
+
+void Environment::ToggleExteriors()
+{
+	if (exteriorsCountdown == 0)
+	{
+		renderExteriors = !renderExteriors;
+		exteriorsCountdown = countdownMax;
+	}
+}
+
+void Environment::ToggleUniques()
+{
+	if (uniquesCountdown == 0)
+	{
+		renderUniques = !renderUniques;
+		uniquesCountdown = countdownMax;
+	}
+}
+
+void Environment::ToggleOns()
+{
+	if (onsCountdown == 0)
+	{
+		renderOns = !renderOns;
+		onsCountdown = countdownMax;
+	}
+}
+
+void Environment::ToggleOffs()
+{
+	if (offsCountdown == 0)
+	{
+		renderOffs = !renderOffs;
+		offsCountdown = countdownMax;
+	}
+}
+
 void Environment::GenerateShaders()
 {
 	// Generates Vertex Buffer Object and links it to vertices
@@ -189,30 +260,83 @@ void Environment::GenerateShaders()
 
 void Environment::Draw()
 {
-	mainMesh.shaderProgram.Activate();
-	mainMesh.VAO.Bind();
-	glDrawElements(GL_TRIANGLES, mainMesh.numVerts, GL_UNSIGNED_INT, 0);
+	if (renderMesh)
+	{
+		mainMesh.shaderProgram.Activate();
+		mainMesh.VAO.Bind();
+		glDrawElements(GL_TRIANGLES, mainMesh.numVerts, GL_UNSIGNED_INT, 0);
+	}
 
-	allLines.shaderProgram.Activate();
-	allLines.VAO.Bind();
-	//glDrawElements(GL_LINES, allLines.numVerts, GL_UNSIGNED_INT, 0);
+	if (renderLines)
+	{
+		allLines.shaderProgram.Activate();
+		allLines.VAO.Bind();
+		glDrawElements(GL_LINES, allLines.numVerts, GL_UNSIGNED_INT, 0);
+	}
 
-	exteriorLines.shaderProgram.Activate();
-	exteriorLines.VAO.Bind();
-	//glDrawElements(GL_LINES, exteriorLines.numVerts, GL_UNSIGNED_INT, 0);
+	if (renderExteriors)
+	{
+		exteriorLines.shaderProgram.Activate();
+		exteriorLines.VAO.Bind();
+		glDrawElements(GL_LINES, exteriorLines.numVerts, GL_UNSIGNED_INT, 0);
+	}
 
-	uniqueExteriorLines.shaderProgram.Activate();
-	uniqueExteriorLines.VAO.Bind();
-	//glDrawElements(GL_LINES, uniqueExteriorLines.numVerts, GL_UNSIGNED_INT, 0);
+	if (renderUniques)
+	{
+		uniqueExteriorLines.shaderProgram.Activate();
+		uniqueExteriorLines.VAO.Bind();
+		glDrawElements(GL_LINES, uniqueExteriorLines.numVerts, GL_UNSIGNED_INT, 0);
+	}
 
 	glPointSize(5);
-	onNodes.shaderProgram.Activate();
-	onNodes.VAO.Bind();
-	//glDrawElements(GL_POINTS, onNodes.numVerts, GL_UNSIGNED_INT, 0);
+	if (renderOns)
+	{
+		onNodes.shaderProgram.Activate();
+		onNodes.VAO.Bind();
+		glDrawElements(GL_POINTS, onNodes.numVerts, GL_UNSIGNED_INT, 0);
+	}
 
-	offNodes.shaderProgram.Activate();
-	offNodes.VAO.Bind();
-	//glDrawElements(GL_POINTS, offNodes.numVerts, GL_UNSIGNED_INT, 0);
+	if (renderOffs)
+	{
+		offNodes.shaderProgram.Activate();
+		offNodes.VAO.Bind();
+		glDrawElements(GL_POINTS, offNodes.numVerts, GL_UNSIGNED_INT, 0);
+	}
+
+	if (meshCountdown > 0)
+	{
+		meshCountdown--;
+	}
+
+	if (linesCountdown > 0)
+	{
+		linesCountdown--;
+	}
+
+	if (exteriorsCountdown > 0)
+	{
+		exteriorsCountdown--;
+	}
+
+	if (uniquesCountdown > 0)
+	{
+		uniquesCountdown--;
+	}
+
+	if (onsCountdown > 0)
+	{
+		onsCountdown--;
+	}
+
+	if (offsCountdown > 0)
+	{
+		offsCountdown--;
+	}
+
+	if (rotationTimer > 0)
+	{
+		rotationTimer--;
+	}
 }
 
 void Environment::ShaderClean()

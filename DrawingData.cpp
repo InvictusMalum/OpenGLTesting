@@ -11,9 +11,16 @@
 
 #include"DrawingData.h"
 
-DrawingData::DrawingData(int64_t indicesLength)
+DrawingData::DrawingData(int64_t indicesLength_)
+{
+	indicesLength = indicesLength_;
+	indices = new GLuint[indicesLength];
+}
+
+void DrawingData::Reset()
 {
 	indices = new GLuint[indicesLength];
+	numVerts = 0;
 }
 
 void DrawingData::AddIndex(GLuint num)
