@@ -72,16 +72,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\tyler\programs\OpenGLTesting1\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\tyler\programs\OpenGLTesting1\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\tyler\programs\MarchingSquares_OpenGL\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\tyler\programs\MarchingSquares_OpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\tylerweed\source\repos\InvictusMalum\OpenGLTesting\Libraries\include;C:\Users\tyler\programs\OpenGLTesting1\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\tylerweed\source\repos\InvictusMalum\OpenGLTesting\Libraries\lib;C:\Users\tyler\programs\OpenGLTesting1\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\tylerweed\source\repos\InvictusMalum\MarchingSquares_OpenGL\Libraries\include;C:\Users\tyler\programs\MarchingSquares_OpenGL\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\tylerweed\source\repos\InvictusMalum\MarchingSquares_OpenGL\Libraries\lib;C:\Users\tyler\programs\MarchingSquares_OpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
