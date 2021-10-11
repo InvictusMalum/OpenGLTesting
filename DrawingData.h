@@ -19,10 +19,13 @@ class DrawingData
 {
 public:
 	DrawingData(int64_t indicesLength);
+	void Reset();
 	void AddIndex(GLuint num);
 	void Generate(VBO VBO, const char* vertShader, const char* fragShader, int sizeMult);
 	void ShaderClean();
 	
+	int64_t indicesLength;
+
 	GLuint* indices = NULL;
 	int numVerts = NULL;
 	Shader shaderProgram;
