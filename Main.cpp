@@ -85,31 +85,6 @@ int main()
 			e.GenerateShaders();
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_1))
-		{
-			e.ToggleMesh();
-		}
-		if (glfwGetKey(window, GLFW_KEY_2))
-		{
-			e.ToggleLines();
-		}
-		if (glfwGetKey(window, GLFW_KEY_3))
-		{
-			e.ToggleExteriors();
-		}
-		if (glfwGetKey(window, GLFW_KEY_4))
-		{
-			e.ToggleUniques();
-		}
-		if (glfwGetKey(window, GLFW_KEY_5))
-		{
-			e.ToggleOns();
-		}
-		if (glfwGetKey(window, GLFW_KEY_6))
-		{
-			e.ToggleOffs();
-		}
-
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
