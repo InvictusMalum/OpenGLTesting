@@ -98,7 +98,6 @@ void Environment::RotateSelected(int n)
 		{
 			selectedRegion = 2;
 		}
-		std::cout << selectedRegion << std::endl;
 	}
 }
 
