@@ -27,6 +27,8 @@ public:
 	void SetDrawingNodes();
 	void RotateSelected(int n);
 
+	void SetUpCombs();
+
 	void MarchAllSquares();
 
 	void ToggleMesh();
@@ -56,6 +58,9 @@ public:
 
 	DrawingData onNodes = NULL;
 	DrawingData offNodes = NULL;
+
+	int*** squareCombs;
+	int*** outLineCombs;
 
 	int selectedRegion = 2;
 
@@ -92,6 +97,7 @@ public:
 	int VERTS_HEIGHT;
 
 	Square* squares = NULL;
+	Square s;
 };
 
 #endif

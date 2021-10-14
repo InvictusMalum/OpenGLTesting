@@ -25,13 +25,13 @@ class Square
 public:
 	Square();
 	void SetCorners(GLuint c1_, GLuint c4_);
-	void MarchSquare(int** nodes, int squareCombs[16][5][3], int outLineCombs[16][3][2], int VERTS_WIDTH);
+	void MarchSquare(int** nodes, int*** squareCombs, int*** outLineCombs, int VERTS_WIDTH);
 	GLuint* GetOutlineLines();
 
 	int numOutVerts;
-	GLuint* outVerts;
+	GLuint* outVerts = new GLuint[8];
 
-	Triangle* tris;
+	Triangle* tris = new Triangle[4];
 	int numTris;
 	uint8_t code = 0;
 

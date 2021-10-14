@@ -19,7 +19,9 @@ DrawingData::DrawingData(int64_t indicesLength_)
 
 void DrawingData::Reset()
 {
-	indices = new GLuint[indicesLength];
+	for (int i = 0; i < indicesLength; i++) {
+		indices[i] = 0;
+	}
 	numVerts = 0;
 }
 

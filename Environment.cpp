@@ -101,56 +101,92 @@ void Environment::RotateSelected(int n)
 	}
 }
 
-void Environment::MarchAllSquares()
+void Environment::SetUpCombs() 
 {
-	mainMesh.Reset();
-	allLines.Reset();
-	exteriorLines.Reset();
-	uniqueExteriorLines.Reset();
-	
-	int squareCombs[16][5][3] = {
+	int squareCombsArray[16][5][3] = {
 		{{0}, { 0,0,0 }}, // 0
 		{{1}, {0,1,VERTS_WIDTH}}, // 1
 		{{1}, {1,2,VERTS_WIDTH + 2}}, // 2
 		{{2}, {0,2,VERTS_WIDTH + 2}, {0,VERTS_WIDTH + 2,VERTS_WIDTH}}, // 3
 		{{1}, {2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH,VERTS_WIDTH},}, // 4
-		{{2}, {0,1,2 * VERTS_WIDTH+1},{0,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 5
-		{{4}, {1,2,VERTS_WIDTH+2},{1,VERTS_WIDTH+2,2*VERTS_WIDTH+1},{1,2*VERTS_WIDTH + 1,2 * VERTS_WIDTH},{1,2 * VERTS_WIDTH,VERTS_WIDTH}}, // 6
+		{{2}, {0,1,2 * VERTS_WIDTH + 1},{0,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 5
+		{{4}, {1,2,VERTS_WIDTH + 2},{1,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1},{1,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH},{1,2 * VERTS_WIDTH,VERTS_WIDTH}}, // 6
 		{{3}, {0,2,VERTS_WIDTH + 2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1},{0,2 * VERTS_WIDTH + 1,2 * VERTS_WIDTH}}, // 7
 		{{1}, {VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1}}, // 8
 		{{4}, {0,1,VERTS_WIDTH + 2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2},{0,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1},{0,2 * VERTS_WIDTH + 1,VERTS_WIDTH}}, // 9
 		{{2}, {1,2,2 * VERTS_WIDTH + 2},{1,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1}}, // 10
-		{{3}, {0,2,2*VERTS_WIDTH+2},{0,2 * VERTS_WIDTH + 2,2*VERTS_WIDTH+1},{0,2 * VERTS_WIDTH + 1,VERTS_WIDTH}}, // 11
+		{{3}, {0,2,2 * VERTS_WIDTH + 2},{0,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1},{0,2 * VERTS_WIDTH + 1,VERTS_WIDTH}}, // 11
 		{{2}, {VERTS_WIDTH,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2},{VERTS_WIDTH,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 12
-		{{3}, {0,1,VERTS_WIDTH+2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH+2},{0,2 * VERTS_WIDTH+2,2*VERTS_WIDTH}}, // 13
-		{{3}, {1,2,2*VERTS_WIDTH + 2},{1,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH},{1,2 * VERTS_WIDTH,VERTS_WIDTH}}, // 14
+		{{3}, {0,1,VERTS_WIDTH + 2},{0,VERTS_WIDTH + 2,2 * VERTS_WIDTH + 2},{0,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 13
+		{{3}, {1,2,2 * VERTS_WIDTH + 2},{1,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH},{1,2 * VERTS_WIDTH,VERTS_WIDTH}}, // 14
 		{{2}, {0,2,2 * VERTS_WIDTH + 2},{0,2 * VERTS_WIDTH + 2,2 * VERTS_WIDTH}}, // 15
 	};
 
-	int outLineCombs[16][3][2] = {
+	int outLineCombsArray[16][3][2] = {
 		{{0}}, // 0
 		{{1}, {1, VERTS_WIDTH}}, // 1
-		{{1}, {1, VERTS_WIDTH+2}}, // 2
-		{{1}, {VERTS_WIDTH+2,VERTS_WIDTH}}, // 3
-		{{1}, {VERTS_WIDTH, 2* VERTS_WIDTH+1}}, // 4
-		{{1}, {1,2*VERTS_WIDTH+1}}, // 5
-		{{2}, {1, VERTS_WIDTH}, {VERTS_WIDTH+2,2* VERTS_WIDTH+1}}, // 6
-		{{1}, {VERTS_WIDTH+2, 2* VERTS_WIDTH+1}}, // 7
-		{{1}, {VERTS_WIDTH+2, 2* VERTS_WIDTH+1}}, // 8
+		{{1}, {1, VERTS_WIDTH + 2}}, // 2
+		{{1}, {VERTS_WIDTH + 2,VERTS_WIDTH}}, // 3
+		{{1}, {VERTS_WIDTH, 2 * VERTS_WIDTH + 1}}, // 4
+		{{1}, {1,2 * VERTS_WIDTH + 1}}, // 5
+		{{2}, {1, VERTS_WIDTH}, {VERTS_WIDTH + 2,2 * VERTS_WIDTH + 1}}, // 6
+		{{1}, {VERTS_WIDTH + 2, 2 * VERTS_WIDTH + 1}}, // 7
+		{{1}, {VERTS_WIDTH + 2, 2 * VERTS_WIDTH + 1}}, // 8
 		{{2}, {VERTS_WIDTH, 2 * VERTS_WIDTH + 1}, {1, VERTS_WIDTH + 2}}, // 9
 		{{1}, {1,2 * VERTS_WIDTH + 1}}, // 10
-		{{1}, {VERTS_WIDTH, 2*VERTS_WIDTH + 1}}, // 11
+		{{1}, {VERTS_WIDTH, 2 * VERTS_WIDTH + 1}}, // 11
 		{{1}, {VERTS_WIDTH + 2,VERTS_WIDTH}}, // 12
 		{{1}, {1, VERTS_WIDTH + 2}}, // 13
 		{{1}, {1, VERTS_WIDTH}}, // 14
 		{{0}}, // 15
 	};
 
+	squareCombs = new int**[16];
+	for (int i = 0; i < 16; i++)
+	{
+		int** newRow = new int*[5];
+		for (int j = 0; j < 5; j++)
+		{
+			int* newRow2 = new int[3];
+			for (int k = 0; k < 3; k++)
+			{
+				newRow2[k] = squareCombsArray[i][j][k];
+			}
+			newRow[j] = newRow2;
+		}
+		squareCombs[i] = newRow;
+	}
+
+	outLineCombs = new int** [16];
+	for (int i = 0; i < 16; i++)
+	{
+		int** newRow = new int* [3];
+		for (int j = 0; j < 5; j++)
+		{
+			int* newRow2 = new int[2];
+			for (int k = 0; k < 3; k++)
+			{
+				newRow2[k] = outLineCombsArray[i][j][k];
+			}
+			newRow[j] = newRow2;
+		}
+		outLineCombs[i] = newRow;
+	}
+
+}
+
+void Environment::MarchAllSquares()
+{
+	mainMesh.Reset();
+	allLines.Reset();
+	exteriorLines.Reset();
+	uniqueExteriorLines.Reset();
+
 	for (int i = 0; i < SQUARES_HEIGHT; i++)
 	{
 		for (int j = 0; j < SQUARES_WIDTH; j++)
 		{
-			Square s = squares[(int64_t)i * SQUARES_WIDTH + j];
+			s = squares[(int64_t)i * SQUARES_WIDTH + j];
 			s.MarchSquare(nM.nodes, squareCombs, outLineCombs, VERTS_WIDTH);
 			if (s.code != 0)
 			{
@@ -255,6 +291,9 @@ void Environment::GenerateShaders()
 
 	onNodes.Generate(VBO, "default.vert", "green.frag", sizeof(*vertices));
 	offNodes.Generate(VBO, "default.vert", "black.frag", sizeof(*vertices));
+
+	VBO.Unbind();
+	VBO.Delete();
 }
 
 void Environment::Draw()

@@ -31,6 +31,7 @@ int main()
 
 	e.GenerateVertices();
 	e.GenerateNodes();
+	e.SetUpCombs();
 	e.SetDrawingNodes();
 	e.MarchAllSquares();
 

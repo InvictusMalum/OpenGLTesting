@@ -31,7 +31,7 @@ void Square::SetCorners(GLuint c1_, GLuint c4_)
 	c4 = c4_;
 }
 
-void Square::MarchSquare(int** nodes, int squareCombs[16][5][3], int outLineCombs[16][3][2], int VERTS_WIDTH)
+void Square::MarchSquare(int** nodes, int*** squareCombs, int*** outLineCombs, int VERTS_WIDTH)
 {
 	GLuint j = c1 / 2 % VERTS_WIDTH;
 	GLuint i = (c1 / 2 - j) / VERTS_WIDTH;
@@ -49,8 +49,7 @@ void Square::MarchSquare(int** nodes, int squareCombs[16][5][3], int outLineComb
 	GLuint startVert = c1;
 	if (code != 0)
 	{
-		numTris = squareCombs[code][0][0];
-		tris = new Triangle[numTris];
+		numTris = *(squareCombs + code)[0][0];
 		for (int tri = 1; tri <= numTris; tri++)
 		{
 			tris[tri - 1].SetVerts(c1 + squareCombs[code][tri][0], c1 + squareCombs[code][tri][1], c1 + squareCombs[code][tri][2]);
@@ -60,7 +59,6 @@ void Square::MarchSquare(int** nodes, int squareCombs[16][5][3], int outLineComb
 		{
 			int numLines = outLineCombs[code][0][0];
 			numOutVerts = numLines * 2;
-			outVerts = new GLuint[numOutVerts];
 
 			int nextVert = 0;
 			for (int i = 1; i <= numLines; i++)
