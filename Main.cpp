@@ -54,8 +54,7 @@ int main()
 			e.SetDrawingNodes();
 			e.MarchAllSquares();
 
-			e.ShaderClean();
-			e.GenerateShaders();
+			e.RegenerateShaders();
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_SPACE))
@@ -64,8 +63,7 @@ int main()
 			e.SetDrawingNodes();
 			e.MarchAllSquares();
 
-			e.ShaderClean();
-			e.GenerateShaders();
+			e.RegenerateShaders();
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_UP))
@@ -73,8 +71,7 @@ int main()
 			e.RotateSelected(1);
 			e.SetDrawingNodes();
 
-			e.ShaderClean();
-			e.GenerateShaders();
+			e.RegenerateShaders();
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_DOWN))
@@ -82,8 +79,7 @@ int main()
 			e.RotateSelected(-1);
 			e.SetDrawingNodes();
 
-			e.ShaderClean();
-			e.GenerateShaders();
+			e.RegenerateShaders();
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_1))

@@ -293,7 +293,25 @@ void Environment::GenerateShaders()
 	offNodes.Generate(VBO, "default.vert", "black.frag", sizeof(*vertices));
 
 	VBO.Unbind();
-	VBO.Delete();
+}
+
+void Environment::RegenerateShaders()
+{
+	// Generates Vertex Buffer Object and links it to vertices
+	// VBO.Regenerate(vertices, (int64_t)VERTS_WIDTH * VERTS_HEIGHT * 3 * sizeof(*vertices));
+
+	mainMesh.Regenerate(VBO, "default.vert", "black.frag", sizeof(*vertices));
+
+	allLines.Regenerate(VBO, "default.vert", "red.frag", sizeof(*vertices));
+
+	exteriorLines.Regenerate(VBO, "default.vert", "red.frag", sizeof(*vertices));
+
+	uniqueExteriorLines.Regenerate(VBO, "default.vert", "red.frag", sizeof(*vertices));
+
+	onNodes.Regenerate(VBO, "default.vert", "green.frag", sizeof(*vertices));
+	offNodes.Regenerate(VBO, "default.vert", "black.frag", sizeof(*vertices));
+
+	VBO.Unbind();
 }
 
 void Environment::Draw()

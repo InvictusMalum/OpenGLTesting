@@ -11,6 +11,11 @@ void VAO::Generate()
 	glGenVertexArrays(1, &ID);
 }
 
+void VAO::Regenerate()
+{
+	glGenVertexArrays(1, &ID);
+}
+
 // Links a VBO to the VAO using a certain layout
 void VAO::LinkVBO(VBO& VBO, GLuint layout)
 {

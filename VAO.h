@@ -12,6 +12,7 @@ public:
 	// Constructor that generates a VAO ID
 	VAO();
 	void Generate();
+	void Regenerate();
 	// Links a VBO to the VAO using a certain layout
 	void LinkVBO(VBO& VBO, GLuint layout);
 	// Binds the VAO

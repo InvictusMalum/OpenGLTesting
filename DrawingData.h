@@ -22,6 +22,7 @@ public:
 	void Reset();
 	void AddIndex(GLuint num);
 	void Generate(VBO VBO, const char* vertShader, const char* fragShader, int sizeMult);
+	void Regenerate(VBO VBO, const char* vertShader, const char* fragShader, int sizeMult);
 	void ShaderClean();
 	
 	int64_t indicesLength;

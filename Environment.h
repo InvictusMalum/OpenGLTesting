@@ -39,6 +39,7 @@ public:
 	void ToggleOns();
 	void ToggleOffs();
 
+	void RegenerateShaders();
 	void GenerateShaders();
 	void Draw();
 	void ShaderClean();

@@ -40,7 +40,17 @@ void DrawingData::Generate(VBO VBO, const char* vertShader, const char* fragShad
 	VAO.LinkVBO(VBO, 0);
 
 	VAO.Unbind();
-	VBO.Unbind();
+	EBO.Unbind();
+}
+
+void DrawingData::Regenerate(VBO VBO, const char* vertShader, const char* fragShader, int sizeMult)
+{
+	VAO.Regenerate();
+	VAO.Bind();
+	EBO.Regenerate(indices, (int64_t)numVerts * sizeMult);
+	VAO.LinkVBO(VBO, 0);
+
+	VAO.Unbind();
 	EBO.Unbind();
 }
 
