@@ -44,10 +44,27 @@ int main()
 
 	e.GenerateShaders();
 
+	int r_cool = 0;
+	int highlight_cool = 0;
+	int number_cool = 0;
+
 	// Main while loop until window should close
 	while (!glfwWindowShouldClose(window))
 	{
-		if (glfwGetKey(window, GLFW_KEY_RIGHT))
+		if (r_cool > 0)
+		{
+			r_cool--;
+		}
+		if (highlight_cool > 0)
+		{
+			highlight_cool--;
+		}
+		if (number_cool > 0)
+		{
+			number_cool--;
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) && r_cool == 0)
 		{
 			e.nM.SmoothMap();
 			e.nM.SetRegionNumbers();
@@ -55,6 +72,8 @@ int main()
 			e.MarchAllSquares();
 
 			e.RegenerateShaders();
+
+			r_cool = 1000;
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_SPACE))
@@ -66,45 +85,55 @@ int main()
 			e.RegenerateShaders();
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_UP))
+		if (glfwGetKey(window, GLFW_KEY_UP) && highlight_cool == 0)
 		{
 			e.RotateSelected(1);
 			e.SetDrawingNodes();
 
 			e.RegenerateShaders();
+
+			highlight_cool = 1000;
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_DOWN))
+		if (glfwGetKey(window, GLFW_KEY_DOWN) && highlight_cool == 0)
 		{
 			e.RotateSelected(-1);
 			e.SetDrawingNodes();
 
 			e.RegenerateShaders();
+
+			highlight_cool = 1000;
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_1))
+		if (glfwGetKey(window, GLFW_KEY_1) && number_cool == 0)
 		{
 			e.ToggleMesh();
+			number_cool = 1000;
 		}
-		if (glfwGetKey(window, GLFW_KEY_2))
+		if (glfwGetKey(window, GLFW_KEY_2) && number_cool == 0)
 		{
 			e.ToggleLines();
+			number_cool = 1000;
 		}
-		if (glfwGetKey(window, GLFW_KEY_3))
+		if (glfwGetKey(window, GLFW_KEY_3) && number_cool == 0)
 		{
 			e.ToggleExteriors();
+			number_cool = 1000;
 		}
-		if (glfwGetKey(window, GLFW_KEY_4))
+		if (glfwGetKey(window, GLFW_KEY_4) && number_cool == 0)
 		{
 			e.ToggleUniques();
+			number_cool = 1000;
 		}
-		if (glfwGetKey(window, GLFW_KEY_5))
+		if (glfwGetKey(window, GLFW_KEY_5) && number_cool == 0)
 		{
 			e.ToggleOns();
+			number_cool = 1000;
 		}
-		if (glfwGetKey(window, GLFW_KEY_6))
+		if (glfwGetKey(window, GLFW_KEY_6) && number_cool == 0)
 		{
 			e.ToggleOffs();
+			number_cool = 1000;
 		}
 
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);

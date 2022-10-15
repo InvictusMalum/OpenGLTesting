@@ -12,8 +12,8 @@ GLFWwindow* GLFWClass::StartUp(int SCREEN_WIDTH, int SCREEN_HEIGHT) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	// Tell GLFW we are using the core profile
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	// Create a GLFW window, width SCREEN_WIDTH, height SCREEN_HEIGHT, named "OpenGLTest"
-	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "OpenGLTest", NULL, NULL);
+	// Create a GLFW window, width SCREEN_WIDTH, height SCREEN_HEIGHT, named "Marching Squares"
+	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Marching Squares", NULL, NULL);
 	// If window fails to be created
 	if (window == NULL)
 	{
